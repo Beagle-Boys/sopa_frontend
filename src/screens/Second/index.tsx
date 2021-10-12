@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
+import styles from './styles';
 
 const Second = () => {
     return(
@@ -10,12 +11,5 @@ const Second = () => {
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    center: {
-        textAlign: 'center',
-        padding: 50
-    }
-});
 
 export default Second;

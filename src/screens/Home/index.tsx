@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import app from '@react-native-firebase/app';
+import styles from './styles';
 
 const Home = (props: any) => {
     return(
@@ -20,25 +21,6 @@ const Home = (props: any) => {
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'space-around' 
-    },
-    appName: {
-        fontSize: 10,
-        backgroundColor: '#ccc',
-        padding: 15,
-        borderRadius: 10,
-    },
-    appText: {
-        fontSize: 25,
-        textAlign: 'center'
-    }
-});
 
 
 export default Home;

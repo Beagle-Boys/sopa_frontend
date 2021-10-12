@@ -14,6 +14,9 @@
 		6172F2D35A4C3AA820D92908 /* libPods-sopa_frontend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6423831EA8574132BED9D8CC /* libPods-sopa_frontend.a */; };
 		7EF68E3733C33B6898317E18 /* libPods-sopa_frontend-sopa_frontendTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFE59519B596E51CEFDCCC0 /* libPods-sopa_frontend-sopa_frontendTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		6FFF60EC24E54EFBA9C26C17 /* RussoOne-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE2F577FA7224833B8AA4C54 /* RussoOne-Regular.ttf */; };
+		AED9CC5E009E4158A683ACB0 /* RussoOne-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FD2E2D8880E44C6F846778D7 /* RussoOne-Regular.ttf */; };
+		3DD4B64B25A948169931B165 /* RussoOne.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6226F5A9E2D84B5EB7C879CF /* RussoOne.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		C0A881CF5CF3F2B244570E2A /* Pods-sopa_frontend.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sopa_frontend.debug.xcconfig"; path = "Target Support Files/Pods-sopa_frontend/Pods-sopa_frontend.debug.xcconfig"; sourceTree = "<group>"; };
 		D00AAFFCFCFDA5787532823F /* Pods-sopa_frontend.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sopa_frontend.release.xcconfig"; path = "Target Support Files/Pods-sopa_frontend/Pods-sopa_frontend.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		CE2F577FA7224833B8AA4C54 /* RussoOne-Regular.ttf */ = {isa = PBXFileReference; name = "RussoOne-Regular.ttf"; path = "../assets/fonts/Russo_One/RussoOne-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FD2E2D8880E44C6F846778D7 /* RussoOne-Regular.ttf */ = {isa = PBXFileReference; name = "RussoOne-Regular.ttf"; path = "../assets/fonts/RussoOne-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6226F5A9E2D84B5EB7C879CF /* RussoOne.ttf */ = {isa = PBXFileReference; name = "RussoOne.ttf"; path = "../assets/fonts/RussoOne.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +128,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E233CBF5F47BEE60B243DCF8 /* Pods */,
+				07C33A0E62004657BC0922AA /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -148,6 +155,17 @@
 			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		07C33A0E62004657BC0922AA /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				CE2F577FA7224833B8AA4C54 /* RussoOne-Regular.ttf */,
+				FD2E2D8880E44C6F846778D7 /* RussoOne-Regular.ttf */,
+				6226F5A9E2D84B5EB7C879CF /* RussoOne.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -245,6 +263,9 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				6FFF60EC24E54EFBA9C26C17 /* RussoOne-Regular.ttf in Resources */,
+				AED9CC5E009E4158A683ACB0 /* RussoOne-Regular.ttf in Resources */,
+				3DD4B64B25A948169931B165 /* RussoOne.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
