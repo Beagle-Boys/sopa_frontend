@@ -49,24 +49,24 @@ const SignUp = (props: any) => {
 
     return (
         <View style={styles.container}>
-            <Text>Sign Up</Text>
-            <SafeAreaView>
+            <Text style={styles.signUpTitle}>Sign Up</Text>
+            <SafeAreaView style={{flex: 3}}>
                 <View style={styles.form}>
                     <View style={styles.inpGroup}>
-                        <Text>Name</Text>
-                        <TextInput value={name} onChangeText={setName} keyboardType="name-phone-pad" defaultValue="Your Name" autoCompleteType="name" />
-                        <Text>{nameError}</Text>
+                        <Text style={styles.labelText}>Name</Text>
+                        <TextInput style={styles.textInp} value={name} onChangeText={setName} keyboardType="name-phone-pad" defaultValue="Your Name" autoCompleteType="name" />
+                        {nameError!=="" ? <Text style={styles.errorBox} >{nameError}</Text> : null}
                     </View>
                     <View style={styles.inpGroup}>
-                        <Text>Mobile Number</Text>
+                        <Text style={styles.labelText}>Mobile Number</Text>
                         <View style={styles.sameLine}>
-                            <Text>+91</Text>
-                            <TextInput value={mobile} onChangeText={setMobile} keyboardType="phone-pad" defaultValue="xxxxxxxxxx" autoCompleteType="tel" />
+                            <Text style={styles.labelNum}>+91</Text>
+                            <TextInput style={styles.textInp} value={mobile} onChangeText={setMobile} keyboardType="phone-pad" defaultValue="xxxxxxxxxx" autoCompleteType="tel" />
                         </View>
-                        <Text>{mobileError}</Text>
+                        {mobileError!=="" ? <Text style={styles.errorBox} >{mobileError}</Text> : null}
                     </View>
                     <View style={styles.inpGroup}>
-                        <Button disabled={isSubmitting} title="Submit" onPress={onSubmit}>Submit</Button>
+                        <Button color="#cc33ff" disabled={isSubmitting} title="Submit" onPress={onSubmit}>Submit</Button>
                     </View>
                 </View>
             </SafeAreaView>

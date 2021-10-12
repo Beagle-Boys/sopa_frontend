@@ -33,7 +33,8 @@ const UnauthRoute = () => {
         <Stack.Navigator screenOptions={TransitionScreenOptions} initialRouteName="Signup">
             <Stack.Screen
                 name="Signup"
-                component={SignUp} />
+                component={SignUp}
+                options={{ headerShown: false }} />
             <Stack.Screen
                 name="Entry"
                 component={Second} />
