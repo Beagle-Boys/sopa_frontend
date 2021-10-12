@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, Alert } from 'react-native';
+import { View, Text, Button, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles';
 import { TextInput } from 'react-native-gesture-handler';
@@ -16,13 +16,16 @@ const SignUp = (props: any) => {
     const [isSubmitting,setIsSubmitting] = useState(false);
 
 
-    const {} = useFirebaseContext();
+    const { setWhat } = useFirebaseContext();
 
     function onSubmit() {
         setIsSubmitting(true);
         console.log(name,mobile);
         let valid = validate();
-        if (valid) Alert.alert('Success', `You have successfully signed up : ${name} ${mobile}`);
+        if (valid) {
+            Alert.alert('Success', `You have successfully signed up : ${name} ${mobile}`);
+            setWhat("what");
+        }
         setIsSubmitting(false);
     }
 
@@ -66,7 +69,9 @@ const SignUp = (props: any) => {
                         {mobileError!=="" ? <Text style={styles.errorBox} >{mobileError}</Text> : null}
                     </View>
                     <View style={styles.inpGroup}>
-                        <Button color="#cc33ff" disabled={isSubmitting} title="Submit" onPress={onSubmit}>Submit</Button>
+                        <Pressable style={styles.submitBtn} disabled={isSubmitting} onPress={onSubmit}>
+                            <Text style={styles.submitBtnText} >Submit</Text>
+                        </Pressable>
                     </View>
                 </View>
             </SafeAreaView>

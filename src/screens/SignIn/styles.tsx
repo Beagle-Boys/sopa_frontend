@@ -52,7 +52,8 @@ const styles = StyleSheet.create({
         opacity: 0.6
     },
     submitBtn: {
-        backgroundColor: '#004e92cc'
+        backgroundColor: '#004e92cc',
+        padding: 10,
     },
     submitBtnText: {
         textAlign: 'center',

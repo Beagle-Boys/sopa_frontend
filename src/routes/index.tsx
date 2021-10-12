@@ -5,6 +5,8 @@ import { useFirebaseContext } from '../context/FirebaseContext';
 import Home from '../screens/Home';
 import Second from '../screens/Second';
 import SignUp from '../screens/SignUp';
+import Landing from '../screens/Landing';
+import SignIn from '../screens/SignIn';
 
 const Stack = createStackNavigator();
 
@@ -30,20 +32,25 @@ const AuthRoute = () => {
 
 const UnauthRoute = () => {
     return (
-        <Stack.Navigator screenOptions={TransitionScreenOptions} initialRouteName="Signup">
+        <Stack.Navigator screenOptions={TransitionScreenOptions} initialRouteName="Landing">
             <Stack.Screen
-                name="Signup"
+                name="SignUp"
                 component={SignUp}
                 options={{ headerShown: false }} />
             <Stack.Screen
-                name="Entry"
-                component={Second} />
+                name="SignIn"
+                component={SignIn}
+                options={{ headerShown: false }} />
+            <Stack.Screen
+                name="Landing"
+                component={Landing}
+                options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }
 
 export const Route = () => {
-    const { user } = useFirebaseContext();
-    if (user) return <AuthRoute />;
+    const { what } = useFirebaseContext();
+    if (what) return <AuthRoute />;
     return <UnauthRoute />;
 }
