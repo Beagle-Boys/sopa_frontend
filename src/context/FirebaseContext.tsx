@@ -20,7 +20,7 @@ export const FirebaseProvider: FunctionComponent<{}> = ({ children }) => {
 
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-    const [what, setWhat] = useState(null);
+    const [sopaToken, setSopaToken] = useState(null);
 
     function onAuthStateChanged(user:FirebaseAuthTypes.User | null) {
         setUser(user);
@@ -39,8 +39,8 @@ export const FirebaseProvider: FunctionComponent<{}> = ({ children }) => {
     // }
     const value:any = {
         user,
-        what,
-        setWhat
+        sopaToken,
+        setSopaToken
     }
 
     return (

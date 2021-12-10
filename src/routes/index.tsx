@@ -50,7 +50,7 @@ const UnauthRoute = () => {
 }
 
 export const Route = () => {
-    const { what } = useFirebaseContext();
-    if (what) return <AuthRoute />;
+    const { sopaToken } = useFirebaseContext();
+    if (sopaToken) return <AuthRoute />;
     return <UnauthRoute />;
 }
