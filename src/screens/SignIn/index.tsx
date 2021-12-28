@@ -1,17 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ActivityIndicator, Pressable, Animated } from 'react-native';
+import { View, Text, ActivityIndicator, Pressable, Animated, TouchableNativeFeedbackBase } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles';
 import { TextInput } from 'react-native-gesture-handler';
 import { useAuthContext } from '../../context/AuthContext';
 import axios from 'axios';
+import * as yup from 'yup';
+import { Formik } from 'formik';
 
 const PHONE_NUMBER_REGEX = /^\d{10}$/;
 
+const loginValidationSchema = yup.object().shape({
+    username: yup
+        .string()
+        .min(3, 'Username must be at least 3 characters long')
+        .max(20, 'Username must be less than 20 characters long')
+        .required('Username is Required'),
+    email: yup
+        .string()
+        .email("Please enter valid email")
+        .required('Email Address is Required'),
+    mobile: yup
+        .string()
+        .matches(PHONE_NUMBER_REGEX, 'Phone number is not valid')
+        .required('Password is required'),
+})
+
 const SignIn = (props: any) => {
 
-    const [mobile, setMobile] = useState("8789687725");
-    const [mobileError, setMobileError] = useState("");
+    const [mobile, setMobile] = useState("");
     const [otpId, setOtpId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,38 +36,26 @@ const SignIn = (props: any) => {
 
     // useEffect(() => { otpId != '' ? console.log(otpId) : null }, [otpId])
 
-    async function onSubmit() {
-        if (validate()) {
-            await axios.post('https://sopa-bff.herokuapp.com/user/login/mobile',
-                {
-                    "userName": "anurag",
-                    "countryCode": "91",
-                    "mobile": "8789687725",
-                    "googleId": "",
-                    "email": "a@a.com",
-                    "imageUrl": "",
-                    "isActive": false
-                },
-                { headers: { 'Content-Type': 'application/json' } }
-            )
-                .then(res => {
-                    console.log(res.data.otpId);
-                    setOtpId(res.data.otpId); setIsSubmitting(true);
-                    setMobile("");
-                })
-                .catch(err => console.log(err.response));
-        }
-    }
-
-    function validate() {
-        let isValid = true;
-        if (!PHONE_NUMBER_REGEX.test(mobile)) {
-            setMobileError("Invalid Phone number");
-            isValid = false;
-        } else {
-            setMobileError("");
-        }
-        return isValid;
+    function onSubmit(formdata: { username: string, email: string, mobile: string }) {
+        console.log(formdata);
+        setMobile(formdata.mobile);
+        axios.post('https://sopa-bff.herokuapp.com/user/login/mobile',
+            {
+                "userName": formdata.username,
+                "countryCode": "91",
+                "mobile": formdata.mobile,
+                "googleId": "",
+                "email": formdata.email,
+                "imageUrl": "",
+                "isActive": false
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        )
+            .then(res => {
+                console.log(res.data.otpId);
+                setOtpId(res.data.otpId); setIsSubmitting(true);
+            })
+            .catch(err => console.log(err.response));
     }
 
     return (
@@ -60,7 +65,52 @@ const SignIn = (props: any) => {
                 <View style={styles.form}>
                     {!isSubmitting ?
                         <>
-                            <View style={styles.inpGroup}>
+                            <Formik
+                                initialValues={{ username: '', email: '', mobile: '' }}
+                                onSubmit={values => onSubmit(values)}
+                                validationSchema={loginValidationSchema}
+                            >
+                                {({ handleChange, handleSubmit, values, errors, touched, isValid }) => (
+                                    <>
+                                        <TextInput
+                                            placeholder="Username"
+                                            style={styles.textInp}
+                                            onChangeText={handleChange('username')}
+                                            value={values.username}
+                                        />
+                                        {(errors.username && touched.username) &&
+                                            <Text style={styles.errorBox}>{errors.username}</Text>
+                                        }
+                                        <TextInput
+                                            placeholder="Email"
+                                            style={styles.textInp}
+                                            onChangeText={handleChange('email')}
+                                            value={values.email}
+                                            keyboardType="email-address"
+                                        />
+                                        {(errors.email && touched.email) &&
+                                            <Text style={styles.errorBox}>{errors.email}</Text>
+                                        }
+                                        <View style={styles.sameLine}>
+                                            <Text style={styles.labelNum}>+91</Text>
+                                            <TextInput
+                                                placeholder="mobile"
+                                                style={styles.textInp}
+                                                onChangeText={handleChange('mobile')}
+                                                value={values.mobile}
+                                                keyboardType="numeric"
+                                            />
+                                        </View>
+                                        {(errors.mobile && touched.mobile) &&
+                                            <Text style={styles.errorBox}>{errors.mobile}</Text>
+                                        }
+                                        <Pressable onPress={handleSubmit} style={[styles.submitBtn, styles.inpGroup, !isValid ? {backgroundColor: "#ccc"} : null]} disabled={!isValid}>
+                                            <Text style={styles.submitBtnText}>Get OTP</Text>
+                                        </Pressable>
+                                    </>
+                                )}
+                            </Formik>
+                            {/* <View style={styles.inpGroup}>
                                 <Text style={styles.labelText}>Mobile Number</Text>
                                 <View style={styles.sameLine}>
                                     <Text style={styles.labelNum}>+91</Text>
@@ -72,7 +122,7 @@ const SignIn = (props: any) => {
                                 <Pressable style={styles.submitBtn} disabled={isSubmitting} onPress={onSubmit}>
                                     <Text style={styles.submitBtnText}>Get OTP</Text>
                                 </Pressable>
-                            </View>
+                            </View> */}
                         </> :
                         <EnterOTP otpId={otpId} mobile={mobile} />
                     }
@@ -115,7 +165,7 @@ const EnterOTP = (props: any) => {
                     setOtp(true);
                     setAuth(res.data.auth);
                 })
-                .catch(err => console.log(err.response));
+                .catch(err => console.log(err));
         }
         setotpValue("");
     }
