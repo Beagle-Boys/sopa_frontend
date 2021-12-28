@@ -3,8 +3,7 @@ import { View, Text, Button, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles';
 import { TextInput } from 'react-native-gesture-handler';
-import { useFirebaseContext } from '../../context/FirebaseContext';
-import axios from 'axios';
+import { useAuthContext } from '../../context/AuthContext';
 
 const PHONE_NUMBER_REGEX = /^\d{10}$/;
 
@@ -16,7 +15,7 @@ const SignUp = (props: any) => {
     const [mobileError, setMobileError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { setSopaToken, sopaToken } = useFirebaseContext();
+    const { setSopaToken, sopaToken } = useAuthContext();
 
     async function onSubmit() {
         setIsSubmitting(true);

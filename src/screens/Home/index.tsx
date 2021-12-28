@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, Button } from 'react-native';
 import app from '@react-native-firebase/app';
 import styles from './styles';
-import { useFirebaseContext } from '../../context/FirebaseContext';
+import { useAuthContext } from '../../context/AuthContext';
 
 const Home = (props: any) => {
-    const {setWhat} = useFirebaseContext();
+    const { setAuth } = useAuthContext();
     return(
         <View style={styles.container}>
             <View style={styles.appName}>
@@ -25,7 +25,7 @@ const Home = (props: any) => {
                 <Button
                     title="log out"
                     color="#3461eb"
-                    onPress={()=> setWhat(null)}
+                    onPress={()=> setAuth(null)}
                     />
             </View>
         </View>

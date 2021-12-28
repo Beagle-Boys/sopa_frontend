@@ -3,36 +3,43 @@ import { View, Text, ActivityIndicator, Pressable, Animated } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles';
 import { TextInput } from 'react-native-gesture-handler';
-import { useFirebaseContext } from '../../context/FirebaseContext';
+import { useAuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 
 const PHONE_NUMBER_REGEX = /^\d{10}$/;
 
 const SignIn = (props: any) => {
 
-    const [mobile, setMobile] = useState("");
+    const [mobile, setMobile] = useState("8789687725");
     const [mobileError, setMobileError] = useState("");
+    const [otpId, setOtpId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [otpId, setOtpId] = useState("");
+    const { } = useAuthContext();
 
-    const { } = useFirebaseContext();
+    // useEffect(() => { otpId != '' ? console.log(otpId) : null }, [otpId])
 
-    function onSubmit() {
-        if(validate()) {
-            axios.post('https://sopa-bff.herokuapp.com/user/login/mobile',
-            {
-                    userName: "anurag", countryCode: '91', mobileNumber: mobile, email: "a@a.com",
-                    imageUrl: "",
-                    isActive: false
+    async function onSubmit() {
+        if (validate()) {
+            await axios.post('https://sopa-bff.herokuapp.com/user/login/mobile',
+                {
+                    "userName": "anurag",
+                    "countryCode": "91",
+                    "mobile": "8789687725",
+                    "googleId": "",
+                    "email": "a@a.com",
+                    "imageUrl": "",
+                    "isActive": false
                 },
-                {headers: {'Content-Type': 'application/json'}}
+                { headers: { 'Content-Type': 'application/json' } }
             )
-            .then(res => setOtpId(res.data.otpId))
-            .catch(err => console.log(err));
-            setIsSubmitting(true);
+                .then(res => {
+                    console.log(res.data.otpId);
+                    setOtpId(res.data.otpId); setIsSubmitting(true);
+                    setMobile("");
+                })
+                .catch(err => console.log(err.response));
         }
-        setMobile("");
     }
 
     function validate() {
@@ -80,7 +87,7 @@ const EnterOTP = (props: any) => {
     const [otp, setOtp] = useState(false);
     const fadeAnim = useRef(new Animated.Value(0)).current
 
-    const { setWhat, setSopaToken } = useFirebaseContext();
+    const { auth, setAuth } = useAuthContext();
     useEffect(() => {
         Animated.timing(
             fadeAnim,
@@ -93,24 +100,22 @@ const EnterOTP = (props: any) => {
     }, [fadeAnim])
 
     function onSubmit() {
-        if(otpValue.length == 4) {
+        if (otpValue.length == 4) {
+            console.log(props.otpId, otpValue);
             axios.post('https://sopa-bff.herokuapp.com/user/login/otp/validate',
-            {
-                otpId: props.otpId,
-                otp: otpValue,
-                mobile: props.mobile
-            },
-            {headers: {'Content-Type': 'application/json'}}
+                {
+                    "otpId": props.otpId,
+                    "otp": otpValue,
+                    "mobile": props.mobile
+                },
+                { headers: { 'Content-Type': 'application/json' } }
             )
-            .then(res => {
-                if(res.data.success) {
+                .then(res => {
                     console.log(res.data);
-                    setWhat("home");
                     setOtp(true);
-                    setSopaToken(res.data.auth);
-                }
-            })
-            .catch(err => console.log(err));
+                    setAuth(res.data.auth);
+                })
+                .catch(err => console.log(err.response));
         }
         setotpValue("");
     }

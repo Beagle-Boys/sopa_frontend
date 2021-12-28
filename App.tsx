@@ -5,7 +5,7 @@ import {
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Route } from './src/routes';
-import { FirebaseProvider } from './src/context/FirebaseContext';
+import { AuthProvider } from './src/context/AuthContext';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -14,9 +14,9 @@ const App = () => {
   };
   return (
     <NavigationContainer>
-      <FirebaseProvider>
+      <AuthProvider>
         <Route />
-      </FirebaseProvider>
+      </AuthProvider>
     </NavigationContainer>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TransitionPresets, createStackNavigator } from '@react-navigation/stack';
-import { useFirebaseContext } from '../context/FirebaseContext';
+import { useAuthContext } from '../context/AuthContext';
 
 import Home from '../screens/Home';
 import Second from '../screens/Second';
@@ -50,7 +50,7 @@ const UnauthRoute = () => {
 }
 
 export const Route = () => {
-    const { sopaToken } = useFirebaseContext();
-    if (sopaToken) return <AuthRoute />;
+    const { auth } = useAuthContext();
+    if (auth) return <AuthRoute />;
     return <UnauthRoute />;
 }
