@@ -2,11 +2,12 @@ import React from 'react';
 import { TransitionPresets, createStackNavigator } from '@react-navigation/stack';
 import { useAuthContext } from '../context/AuthContext';
 
-import Home from '../screens/Home';
 import Second from '../screens/Second';
 import SignUp from '../screens/SignUp';
 import Landing from '../screens/Landing';
 import SignIn from '../screens/SignIn';
+
+import AuthTabbed from './AuthTabbed';
 
 const Stack = createStackNavigator();
 
@@ -19,9 +20,9 @@ const AuthRoute = () => {
         <Stack.Navigator screenOptions={TransitionScreenOptions} initialRouteName="Home">
             <Stack.Screen
                 name="Home"
-                component={Home}
+                component={AuthTabbed}
                 options={{
-                    title: 'First Screen'
+                    headerShown: false,
                 }} />
             <Stack.Screen
                 name="Entry"
@@ -51,6 +52,6 @@ const UnauthRoute = () => {
 
 export const Route = () => {
     const { auth } = useAuthContext();
-    if (auth) return <AuthRoute />;
+    if (true) return <AuthRoute />;
     return <UnauthRoute />;
 }
