@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import styles from './styles';
 
-import Icon from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const StarredLocation = () => {
     return(
@@ -10,7 +10,7 @@ const StarredLocation = () => {
             <Text style={styles.center}>
                 Starred Locations List
             </Text>
-            <Icon name="close" size={100} color="#fff" />
+            <Icon name="heart" size={400} color="#fffc" />
         </View>
     )
 }

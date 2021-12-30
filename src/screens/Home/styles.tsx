@@ -5,18 +5,31 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-around' 
+        justifyContent: 'space-around',
+        backgroundColor: '#AFE1AF',
     },
-    appName: {
-        fontSize: 10,
-        backgroundColor: '#ccc',
-        padding: 15,
+    searchBar: {
+        width: '90%',
+        height: 50,
+        backgroundColor: '#f8f8f8',
         borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: "absolute",
+        top: '5%',
+        shadowOffset: {
+            width: 0,
+            height: -100,
+        },
+        elevation: 10,
     },
-    appText: {
-        fontSize: 25,
-        textAlign: 'center',
-        fontFamily: "RussoOne"
+    menuBtn: {
+        marginHorizontal: 10,
+    },
+    searchInput: {
+        flexGrow: 1,
+        fontSize: 20,
     }
 });
 
