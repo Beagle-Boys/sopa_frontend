@@ -1,135 +1,169 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Alert, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import styles from './styles';
-import { TextInput } from 'react-native-gesture-handler';
-import { useAuthContext } from '../../context/AuthContext';
+import React, { useState, createRef } from "react";
+import { View, Text, TextInput, Button } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import styles from "./styles";
+import { useAuthContext } from "../../context/AuthContext";
 
 const PHONE_NUMBER_REGEX = /^\d{10}$/;
 
 const SignUp = (props: any) => {
+  const nameInputRef = createRef<TextInput>();
+  const mobileInputRef = createRef<TextInput>();
 
-    const [name, setName] = useState("");
-    const [mobile, setMobile] = useState("");
-    const [nameError, setNameError] = useState("");
-    const [mobileError, setMobileError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, validate_register } = useAuthContext();
 
-    const { setSopaToken, sopaToken } = useAuthContext();
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpId, setOtpId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [nameError, setNameError] = useState("");
+  const [mobileError, setMobileError] = useState("");
+  const [otpError, setOtpError] = useState("");
 
-    async function onSubmit() {
-        setIsSubmitting(true);
-        console.log(name, mobile);
-        let valid = validate();
-        let otpId = "";
-        if (valid) {
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-            const data = JSON.stringify({
-                userName: name, countryCode: '91', mobileNumber: mobile, email: "a@a.com",
-                imageUrl: "",
-                isActive: false
-            });
-            var requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                body: data,
-            };
-            try {
-                let result = await fetch("https://sopa-bff.herokuapp.com/user/register/mobile", requestOptions);
-                let res = await result.json();
-                otpId = res.otpId;
-            } catch (error) {
-                console.log(error);
-            }
-            // axios.post('https://sopa-bff.herokuapp.com/user/register/mobile',
-            //     JSON.stringify({
-            //         userName: name, countryCode: '91', mobileNumber: mobile, email: "a@a.com",
-            //         imageUrl: "",
-            //         isActive: false
-            //     }),
-            //     { headers: { 'Content-Type': 'application/json' } }
-            // )
-            //     .then(res => otpId = res.data.otpId)
-            //     .catch(err => console.log(err))
-            Alert.alert('Success', `You have successfully signed up : ${name} ${mobile}`);
-            requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                body: JSON.stringify({ otpId: otpId, otp: '1234', mobile }),
-            }
-            let result = await fetch(`https://sopa-bff.herokuapp.com/user/register/otp/validate`, requestOptions);
-            let res = await result.json();
-            setSopaToken(res.auth);
-            // axios.post('https://sopa-bff.herokuapp.com/user/register/otp/validate',
-            //     JSON.stringify({
-            //         otpId,
-            //         otp: "1234",
-            //         mobile: "8789687725"
-            //     }),
-            //     { headers: { 'Content-Type': 'application/json' } }
-            // )
-            //     .then(res =>
-            //         setSopaToken(res.data.auth))
-            //     .catch(err => console.log(err));
-        }
-        setIsSubmitting(false);
+  function getActiveInputIndex() {
+    return inputs().findIndex((input) => {
+      let current = input.current;
+      if (!current) return false;
+      console.log("input:", current);
+      return current.isFocused();
+    });
+  }
+
+  function getOtpId() {
+    console.log('GETTING OTP ID');
+    let valid = validate_register_params();
+    console.log(valid);
+    if (!valid) return;
+    setIsLoading(true);
+    register({
+      userName: name,
+      mobile,
+      countryCode: "+91",
+    })
+      .then((id) => {
+        setOtpId(id);
+        console.log("otpid", otpId);
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }
+
+  function validate_otp() {
+    if (otp.length < 4) return;
+    if (otpId.length < 4) return;
+    if (mobile.length != 10) return;
+    setIsLoading(true);
+    validate_register(otp, mobile, otpId)
+      .then(console.log)
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }
+
+  function validate_register_params() {
+    if (name.length < 3) {
+      setNameError("Name must be at least 3 characters long");
+      return false;
     }
-
-    useEffect(() => {
-        console.log(sopaToken);
-    }, [sopaToken])
-
-    function validate() {
-        let isValid = true;
-        if (name.length < 3) {
-            setNameError("Name must be atleast 3 characters long");
-            isValid = false;
-        } else if (name.length > 20) {
-            setNameError("Name must be less than 20 characters long");
-            isValid = false;
-        }
-        else {
-            setNameError("");
-        }
-        if (!PHONE_NUMBER_REGEX.test(mobile)) {
-            setMobileError("Invalid Phone number");
-            isValid = false;
-        } else {
-            setMobileError("");
-        }
-        return isValid;
+    if (mobile.length < 10) {
+      setMobileError("Mobile number must be at least 10 digits long");
+      return false;
     }
+    return true;
+  }
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.signUpTitle}>Sign Up</Text>
-            <SafeAreaView style={{ flex: 3 }}>
-                <View style={styles.form}>
+  function inputs() {
+    return [nameInputRef, mobileInputRef];
+  }
 
-                    <View style={styles.inpGroup}>
-                        <Text style={styles.labelText}>Name</Text>
-                        <TextInput style={styles.textInp} value={name} onChangeText={setName} keyboardType="name-phone-pad" defaultValue="Your Name" autoCompleteType="name" />
-                        {nameError !== "" ? <Text style={styles.errorBox} >{nameError}</Text> : null}
-                    </View>
-                    <View style={styles.inpGroup}>
-                        <Text style={styles.labelText}>Mobile Number</Text>
-                        <View style={styles.sameLine}>
-                            <Text style={styles.labelNum}>+91</Text>
-                            <TextInput style={styles.textInp} value={mobile} onChangeText={setMobile} keyboardType="phone-pad" defaultValue="xxxxxxxxxx" autoCompleteType="tel" />
-                        </View>
-                        {mobileError !== "" ? <Text style={styles.errorBox} >{mobileError}</Text> : null}
-                    </View>
-                    <View style={styles.inpGroup}>
-                        <Pressable style={styles.submitBtn} disabled={isSubmitting} onPress={onSubmit}>
-                            <Text style={styles.submitBtnText} >Submit</Text>
-                        </Pressable>
-                    </View>
+  function setFocus(
+    inputRef: React.RefObject<TextInput>,
+    shouldFocus: boolean
+  ) {
+    if (inputRef?.current == null) return;
+    if (shouldFocus) {
+      setTimeout(() => {
+        inputRef.current && inputRef.current.focus();
+      }, 100);
+    } else {
+      inputRef.current.blur();
+    }
+  }
 
-                </View>
-            </SafeAreaView>
+  function finishEditing() {
+    let activeIndex = getActiveInputIndex();
+    if (activeIndex < 0) return;
+    console.log("Finished Editing");
+    setFocus(inputs[activeIndex], false);
+    validate_register_params();
+  }
+
+  function editNextInput(e: any) {
+    console.log("editNextInput");
+    let activeIndex = getActiveInputIndex();
+    if (activeIndex === -1) return;
+    let nextIndex = activeIndex + 1;
+    if (nextIndex < inputs().length && inputs()[nextIndex].current != null) {
+      setFocus(inputs()[nextIndex], true);
+    } else {
+      finishEditing();
+    }
+  }
+
+  return (
+    <SafeAreaView>
+      <View>
+        <Text>Registration</Text>
+        <View>
+          <TextInput
+            placeholder="User Name"
+            returnKeyType="next"
+            editable={!otpId}
+            onChangeText={setName}
+            onSubmitEditing={editNextInput}
+            ref={nameInputRef}
+          >
+            {nameError ? <Text>{nameError}</Text> : null}
+          </TextInput>
         </View>
-    )
-}
+        <View>
+          <Text>+91</Text>
+          <TextInput
+            placeholder="Mobile"
+            returnKeyType="next"
+            maxLength={10}
+            editable={!otpId}
+            onChangeText={setMobile}
+            onSubmitEditing={editNextInput}
+            ref={mobileInputRef}
+          >
+            {mobileError ? <Text>{mobileError}</Text> : null}
+          </TextInput>
+        </View>
+        {otpId.length > 0 ? (
+          <>
+            <View>
+              <TextInput placeholder="OTP" maxLength={4} onChangeText={setOtp}>
+                {otpError && <Text>{otpError}</Text>}
+              </TextInput>
+            </View>
+            <View>
+              <Button title="Reset" onPress={() => setOtpId("")} />
+            </View>
+          </>
+        ) : null}
+        <View>
+          <Button
+            disabled={
+              isLoading || (otpId ? otp.length != 4 : mobile.length != 10 || name.length < 3)
+            }
+            title="Sign In"
+            onPress={otpId ? validate_otp : getOtpId}
+          />
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 export default SignUp;

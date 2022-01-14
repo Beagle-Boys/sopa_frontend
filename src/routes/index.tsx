@@ -1,6 +1,5 @@
 import React from 'react';
 import { TransitionPresets, createStackNavigator } from '@react-navigation/stack';
-import { useAuthContext } from '../context/AuthContext';
 
 import Second from '../screens/Second';
 import SignUp from '../screens/SignUp';
@@ -51,7 +50,6 @@ const UnauthRoute = () => {
 }
 
 export const Route = () => {
-    const { auth } = useAuthContext();
-    if (true) return <AuthRoute />;
+    //if (true) return <AuthRoute />;
     return <UnauthRoute />;
 }
