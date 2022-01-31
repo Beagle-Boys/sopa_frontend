@@ -32,7 +32,7 @@ export async function api_login(data: any) {
   let response = await fetch(`${API_URL}/user/login/mobile`, request_options);
   let status = response.status;
   if (status !== 200) {
-    throw new Error("Login failed");
+    throw new Error("Login failed " + status);
   }
   return await response.json();
 }
@@ -68,9 +68,12 @@ export async function api_validate_login(data: any) {
     `${API_URL}/user/login/otp/validate`,
     request_options
   );
+  // const j = await response.json();
+  // console.log(data);
+  // console.log(j);
   let status = response.status;
   if (status !== 200) {
-    throw new Error("Login Validation failed");
+    throw new Error("Login Validation failed " + status);
   }
   return await response.json();
 }

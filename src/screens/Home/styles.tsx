@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         position: "absolute",
-        top: '5%',
+        top: '3%',
+        alignSelf: 'center',
         shadowOffset: {
             width: 0,
             height: -100,
