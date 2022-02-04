@@ -9,7 +9,11 @@ const ShowImages = ({ images }) => {
       </Text>
       <ScrollView horizontal={true}>
         {images.map(({ uri }, index) => (
-          <Image source={{ uri, width: 300, height: 200 }} key={index} />
+          <Image
+            source={{ uri, width: 150, height: 150 * 2.07 }}
+            key={index}
+            style={{ margin: 5, borderRadius: 10 }}
+          />
         ))}
       </ScrollView>
     </>

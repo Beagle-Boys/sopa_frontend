@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 20,
     fontSize: 30,
+    marginVertical: 20,
   },
   container: {
     flex: 1,
@@ -34,9 +35,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   textInp: {
-    borderBottomWidth: 1,
     fontSize: width / 20,
-    textAlignVertical: "center",
+    width: 0.8 * width,
+    alignSelf: "center",
+    textAlign: "center",
+    backgroundColor: "#eee",
+    borderRadius: 20,
   },
   labelNum: {
     fontSize: width / 20,
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   submitBtn: {
-    backgroundColor: "#004e92cc",
+    backgroundColor: "#008081",
     width,
     position: "absolute",
     bottom: 0,
@@ -70,8 +74,9 @@ const styles = StyleSheet.create({
     color: "white",
   },
   radioForm: {
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     margin: 40,
+    width: width * 0.8,
   },
 });
 

@@ -59,7 +59,7 @@ const UnauthRoute = () => {
       />
     </Stack.Navigator>
   );
-}
+};
 
 export const Route = () => {
   const { x_sopa_key } = useAuthContext();

@@ -1,20 +1,23 @@
-import React from "react";
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import React, { useState } from "react";
 
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Home from "../../screens/Home";
 import AddLocation from "../../screens/AddLocation";
 import StarredLocation from "../../screens/StarredLocation";
 
-const Tab = createMaterialBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 const AuthTabbed = () => {
+  const [hide, setHide] = useState(false);
   return (
     <Tab.Navigator
+      tabBarPosition="bottom"
       initialRouteName="Map"
-      activeColor="#000"
-      barStyle={{ backgroundColor: "#f9f9f9", height: 50 }}
+      screenOptions={{
+        tabBarLabelStyle: { fontSize: 12 },
+        tabBarStyle: { backgroundColor: "#F9F9F9", height: hide ? 0 : 60 },
+      }}
     >
       <Tab.Screen
         name="Starred"
@@ -31,10 +34,12 @@ const AuthTabbed = () => {
         options={{
           tabBarLabel: "Add",
           tabBarIcon: ({ color }) => (
-            <Icon name="camera" color={color} size={26} />
+            <Icon name="camera" color={color} size={22} />
           ),
+          swipeEnabled: !hide,
         }}
         component={AddLocation}
+        initialParams={{ setHide }}
       />
       <Tab.Screen
         name="Map"

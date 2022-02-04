@@ -40,9 +40,9 @@ const Home = (props: any) => {
         console.warn(err);
       });
   }, []);
-  // useEffect(() => {
-  //   console.log(location.latitude, location.longitude);
-  // }, [location]);
+  useEffect(() => {
+    console.log(location.latitude, location.longitude);
+  }, [location]);
   return (
     <>
       <View style={styles.searchBar}>
