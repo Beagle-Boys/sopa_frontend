@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   TransitionPresets,
   createStackNavigator,
@@ -11,6 +11,8 @@ import SignIn from "../screens/SignIn";
 
 import AuthTabbed from "./AuthTabbed";
 import { useAuthContext } from "../context/AuthContext";
+
+import SplashScreen from "react-native-splash-screen";
 
 const Stack = createStackNavigator();
 
@@ -63,6 +65,10 @@ const UnauthRoute = () => {
 
 export const Route = () => {
   const { x_sopa_key } = useAuthContext();
+  useEffect(() => {
+    SplashScreen.hide();
+  }, [x_sopa_key]);
+
   if (x_sopa_key) return <AuthRoute />;
   return <UnauthRoute />;
 };

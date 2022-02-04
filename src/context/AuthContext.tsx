@@ -3,6 +3,7 @@ import React, {
   createContext,
   useContext,
   FunctionComponent,
+  useEffect,
 } from "react";
 import {
   api_login,
@@ -12,6 +13,7 @@ import {
   api_validate_register,
 } from "../apis";
 import { AuthContextInterface, SignUpData } from "../interfaces";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContext = createContext<AuthContextInterface>({
   register: async (user_data) => "",
@@ -27,6 +29,11 @@ export function useAuthContext() {
 }
 
 export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
+  useEffect(() => {
+    AsyncStorage.getItem("@x_sopa_key")
+      .then((x_sopa_key) => setXSopaKey(x_sopa_key))
+      .catch((e) => console.log(e));
+  }, []);
   const [x_sopa_key, setXSopaKey] = useState<string | null>(null);
 
   async function register(user_data: SignUpData) {
@@ -47,16 +54,20 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
     console.log("validate register", otp, mobile, otpId);
     let response = await api_validate_register({ otp, otpId, mobile });
     console.log("response", response);
-    if (response["auth"] && typeof response["auth"] === "string")
-      setXSopaKey(response['auth']);
+    if (response["auth"] && typeof response["auth"] === "string") {
+      setXSopaKey(response["auth"]);
+      AsyncStorage.setItem("@x_sopa_key", response["auth"]);
+    }
   }
 
   async function validate_login(otp: string, mobile: string, otpId: string) {
     console.log("validate login", otp, mobile, otpId);
     let response = await api_validate_login({ otp, otpId, mobile });
     console.log("response", response);
-    if (response.auth && typeof response.auth === "string")
+    if (response.auth && typeof response.auth === "string") {
       setXSopaKey(response.auth);
+      AsyncStorage.setItem("@x_sopa_key", response["auth"]);
+    }
   }
 
   async function logout() {
@@ -68,6 +79,7 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
       console.error(e);
     } finally {
       setXSopaKey(null);
+      AsyncStorage.removeItem("@x_sopa_key");
     }
   }
 
