@@ -15,6 +15,8 @@ import {
 import { AuthContextInterface, SignUpData } from "../interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import SplashScreen from "react-native-splash-screen";
+
 const AuthContext = createContext<AuthContextInterface>({
   register: async (user_data) => "",
   login: async (mobile: string, countryCode: string) => "",
@@ -32,7 +34,8 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
   useEffect(() => {
     AsyncStorage.getItem("@x_sopa_key")
       .then((x_sopa_key) => setXSopaKey(x_sopa_key))
-      .catch((e) => console.log(e));
+      .catch((e) => console.log(e))
+      .finally(() => SplashScreen.hide());
   }, []);
   const [x_sopa_key, setXSopaKey] = useState<string | null>(null);
 
