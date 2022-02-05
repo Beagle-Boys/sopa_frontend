@@ -6,6 +6,7 @@ import {
   Dimensions,
   Animated,
   Easing,
+  Image,
 } from "react-native";
 import {
   Camera,
@@ -139,17 +140,28 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
         <Pressable
           style={{
             backgroundColor: "#ccc",
-            padding: 10,
             position: "absolute",
             bottom: 0,
-            left: 0,
+            right: 0,
+            borderRadius: 10,
+            borderWidth: 3,
+            borderColor: "#fff",
+            marginVertical: 30,
+            marginHorizontal: 25,
           }}
           onPress={() => {
             console.log(images.length);
             setIsVisible(true);
           }}
         >
-          <Text>show</Text>
+          <Image
+            source={{
+              uri: "file://" + images[images.length - 1].uri,
+              height: 50,
+              width: 50,
+            }}
+            style={{ borderRadius: 10 }}
+          />
         </Pressable>
       )}
       {visible ? (
