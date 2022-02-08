@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, TextInput, Dimensions } from "react-native";
 import styles from "./styles";
-import { Formik } from "formik";
-import * as yup from "yup";
 import RadioForm, {
   RadioButton,
   RadioButtonInput,
@@ -13,16 +11,20 @@ import Icon from "react-native-vector-icons/FontAwesome";
 
 import CameraLocation from "../../components/CameraLocation";
 import ShowImages from "../../components/ShowImages";
+import { useAuthContext } from "../../context/AuthContext";
+import { useTabContext } from "../../context/TabContext";
 
 const { height, width } = Dimensions.get("window");
+const radio_props = [
+  { label: "Public", value: 0 },
+  { label: "Private", value: 1 },
+];
 
 const AddLocation = (props) => {
-  const radio_props = [
-    { label: "Public", value: 0 },
-    { label: "Private", value: 1 },
-  ];
-
+  const { spot_add, spot_image_add } = useAuthContext();
+  const { curCords } = useTabContext();
   const [images, setImages] = useState<any>([]);
+  const [imagesId, setImagesId] = useState<any>([]);
   const [valueIndex, setValueIndex] = useState<number>();
 
   const [showCamera, setShowCamera] = useState(false);
@@ -43,116 +45,118 @@ const AddLocation = (props) => {
 
   useEffect(() => {
     props.route.params.setHide(showCamera);
-  });
+    if (showCamera == false && images.length > 0) {
+      (async () => await spot_image_add(images).then((a) => setImagesId(a)))();
+    }
+  }, [showCamera]);
+  const handleSubmit = () => {
+    const { latitude, longitude, altitude } = curCords;
+    // data location images type
+    spot_add(
+      locationName,
+      { latitude, longitude, altitude },
+      imagesId,
+      valueIndex ? "PRIVATE" : "PUBLIC"
+    );
+  };
+  const [locationName, setLocationName] = useState("");
+  const isValid = locationName.length != 0 && valueIndex != null;
 
   return (
     <View style={{ backgroundColor: "#FFF", flex: 1, zIndex: 0 }}>
       <Text style={styles.center}>Add Location Page</Text>
-      <Formik
-        initialValues={{ username: "", email: "", mobile: "" }}
-        onSubmit={(values) => console.log(values)}
-        // validationSchema={loginValidationSchema}
+      <TextInput
+        placeholder="Location Name"
+        style={styles.textInp}
+        onChangeText={setLocationName}
+        value={locationName}
+      />
+      {/* <Text>{curCords ? JSON.stringify(curCods) : "no"}</Text> */}
+      <RadioForm
+        formHorizontal={true}
+        animation={true}
+        style={styles.radioForm}
       >
-        {({ handleChange, handleSubmit, values, errors, touched, isValid }) => (
-          <>
-            <TextInput
-              placeholder="Location Name"
-              style={styles.textInp}
-              onChangeText={handleChange("username")}
-              value={values.username}
-            />
-            {errors.username && touched.username && (
-              <Text style={styles.errorBox}>{errors.username}</Text>
-            )}
-            <RadioForm
-              formHorizontal={true}
-              animation={true}
-              style={styles.radioForm}
-            >
-              {radio_props.map((obj, i) => (
-                <RadioButton labelHorizontal={true} key={i}>
-                  {/*  You can set RadioButtonLabel before RadioButtonInput */}
-                  <View>
-                    <RadioButtonInput
-                      obj={obj}
-                      index={i}
-                      isSelected={valueIndex === i}
-                      borderWidth={3}
-                      buttonInnerColor={"#008081"}
-                      buttonOuterColor={valueIndex === i ? "#008081" : "#444"}
-                      buttonSize={18}
-                      buttonOuterSize={30}
-                      buttonStyle={{}}
-                      buttonWrapStyle={{ marginLeft: 10 }}
-                      onPress={(value: number) => {
-                        setValueIndex(value);
-                      }}
-                    />
-                    <RadioButtonLabel
-                      obj={obj}
-                      index={i}
-                      labelHorizontal={true}
-                      labelStyle={{ fontSize: 18, color: "#000", marginTop: 5 }}
-                      labelWrapStyle={{}}
-                      onPress={(value: number) => {
-                        setValueIndex(value);
-                      }}
-                    />
-                  </View>
-                </RadioButton>
-              ))}
-            </RadioForm>
-            <Pressable
-              style={{
-                backgroundColor: "#ddd",
-                width: 150,
-                alignSelf: "center",
-                paddingVertical: 5,
-                flexDirection: "row",
-                justifyContent: "center",
-                borderRadius: 10,
-                elevation: 2,
-              }}
-              onPress={openCamera}
-            >
-              <Text style={{ fontSize: 20, textAlign: "center" }}>
-                add photos
-              </Text>
-              <Icon
-                name="camera"
-                size={20}
-                style={{
-                  position: "relative",
-                  top: 3,
-                  marginHorizontal: 3,
+        {radio_props.map((obj, i) => (
+          <RadioButton labelHorizontal={true} key={i}>
+            {/*  You can set RadioButtonLabel before RadioButtonInput */}
+            <View>
+              <RadioButtonInput
+                obj={obj}
+                index={i}
+                isSelected={valueIndex === i}
+                borderWidth={3}
+                buttonInnerColor={"#008081"}
+                buttonOuterColor={valueIndex === i ? "#008081" : "#444"}
+                buttonSize={18}
+                buttonOuterSize={30}
+                buttonStyle={{}}
+                buttonWrapStyle={{ marginLeft: 10 }}
+                onPress={(value: number) => {
+                  setValueIndex(value);
                 }}
               />
-            </Pressable>
-            {showCamera ? (
-              <View style={{ position: "absolute" }}>
-                <CameraLocation
-                  images={images}
-                  setImages={setImages}
-                  setShowCamera={setShowCamera}
-                />
-              </View>
-            ) : images.length == 0 ? null : (
-              <ShowImages images={images} />
-            )}
-            <Pressable
-              onPress={handleSubmit}
-              style={[
-                styles.submitBtn,
-                !isValid ? { backgroundColor: "#ccc" } : null,
-                showCamera ? { height: 0 } : null,
-              ]}
-              disabled={!isValid}
-            >
-              <Text style={styles.submitBtnText}>Add Location</Text>
-            </Pressable>
-          </>
-        )}
-      </Formik>
+              <RadioButtonLabel
+                obj={obj}
+                index={i}
+                labelHorizontal={true}
+                labelStyle={{ fontSize: 18, color: "#000", marginTop: 5 }}
+                labelWrapStyle={{}}
+                onPress={(value: number) => {
+                  setValueIndex(value);
+                }}
+              />
+            </View>
+          </RadioButton>
+        ))}
+      </RadioForm>
+      <Pressable
+        style={{
+          backgroundColor: "#ddd",
+          width: 150,
+          alignSelf: "center",
+          paddingVertical: 5,
+          flexDirection: "row",
+          justifyContent: "center",
+          borderRadius: 10,
+          elevation: 2,
+        }}
+        onPress={openCamera}
+      >
+        <Text style={{ fontSize: 20, textAlign: "center" }}>add photos</Text>
+        <Icon
+          name="camera"
+          size={20}
+          style={{
+            position: "relative",
+            top: 3,
+            marginHorizontal: 3,
+          }}
+        />
+      </Pressable>
+      {showCamera ? (
+        <View style={{ position: "absolute" }}>
+          <CameraLocation
+            images={images}
+            setImages={setImages}
+            setShowCamera={setShowCamera}
+            setImagesId={setImagesId}
+          />
+        </View>
+      ) : images.length == 0 ? null : (
+        <ShowImages images={images} />
+      )}
+      <Pressable
+        onPress={handleSubmit}
+        style={[
+          styles.submitBtn,
+          !isValid ? { backgroundColor: "#ccc" } : null,
+          showCamera ? { height: 0 } : null,
+        ]}
+        disabled={!isValid}
+      >
+        <Text style={styles.submitBtnText}>Add Location</Text>
+      </Pressable>
     </View>
   );
 };

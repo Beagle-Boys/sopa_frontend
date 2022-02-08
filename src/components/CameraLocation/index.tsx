@@ -15,10 +15,12 @@ import {
 } from "react-native-vision-camera";
 import ImageView from "react-native-image-viewing";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useAuthContext } from "../../context/AuthContext";
 
 const { height, width } = Dimensions.get("window");
 
-const CameraAdd = ({ images, setImages, setShowCamera }) => {
+const CameraAdd = ({ images, setImages, setShowCamera, setImagesId }) => {
+  const { spot_image_add } = useAuthContext();
   const Ypos = useRef(new Animated.Value(height)).current;
   const camera = useRef<Camera>(null);
 
@@ -41,12 +43,12 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
     console.log("take photo end");
     // images.push({ uri: "file://" + photo?.path });
     setImages([
-      ...images,
       {
         uri: "file://" + photo?.path,
         height: photo?.height,
         width: photo?.width,
       },
+      ...images,
     ]);
     console.log("height width " + height + " " + width);
   };
@@ -156,7 +158,7 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
         >
           <Image
             source={{
-              uri: "file://" + images[images.length - 1].uri,
+              uri: "file://" + images[0].uri,
               height: 50,
               width: 50,
             }}

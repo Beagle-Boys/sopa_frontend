@@ -93,3 +93,55 @@ export async function api_logout(x_sopa_key: string) {
   }
   return await response.json();
 }
+
+export async function api_spot_add(x_sopa_key: string, data: any) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(data),
+  };
+  let response = await fetch(`${API_URL}/user/spot/add`, request_options);
+  let status = response.status;
+  if (status !== 200) {
+    throw new Error("Spot Add failed");
+  }
+  return await response.json();
+}
+
+export async function api_spot_getall(x_sopa_key: string, data: any) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(data),
+  };
+  let response = await fetch(`${API_URL}/spot/add`, request_options);
+  let status = response.status;
+  if (status !== 200) {
+    throw new Error("Fetching all spots failed");
+  }
+  return await response.json();
+}
+
+export async function api_spot_image_add(x_sopa_key: string, data: any) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(data),
+  };
+  let response = await fetch(`${API_URL}/user/spot/image/add`, request_options);
+  let status = response.status;
+  if (status !== 200) {
+    console.log(x_sopa_key);
+    throw new Error("Adding Images Failed! " + status);
+  }
+  return await response.json();
+}

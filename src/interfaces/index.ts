@@ -16,4 +16,11 @@ export interface AuthContextInterface {
   login: (mobile: string, countryCode: string) => Promise<string>;
   x_sopa_key: string | null;
   logout: () => Promise<void>;
+  spot_add: (
+    data: string,
+    location: any,
+    images: any,
+    typev: string
+  ) => Promise<void>;
+  spot_image_add: (images: string[]) => Promise<[]>;
 }

@@ -11,10 +11,13 @@ import {
   api_register,
   api_validate_login,
   api_validate_register,
+  api_spot_add,
+  api_spot_getall,
+  api_spot_image_add,
 } from "../apis";
 import { AuthContextInterface, SignUpData } from "../interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import ImgToBase64 from "react-native-image-base64";
 import SplashScreen from "react-native-splash-screen";
 
 const AuthContext = createContext<AuthContextInterface>({
@@ -24,6 +27,13 @@ const AuthContext = createContext<AuthContextInterface>({
   validate_login: async (otp: string, mobile: string, otpId: string) => {},
   x_sopa_key: null,
   logout: async () => {},
+  spot_add: async (
+    data: string,
+    location: any,
+    images: any,
+    typev: string
+  ) => {},
+  spot_image_add: async (images: any[]) => [],
 });
 
 export function useAuthContext() {
@@ -86,6 +96,46 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
     }
   }
 
+  async function spot_add(
+    data: string,
+    location: any,
+    images: any,
+    typev: string
+  ) {
+    console.log("spot add");
+    if (!x_sopa_key) return;
+    try {
+      await api_spot_add(x_sopa_key, {
+        address: { data, location },
+        images,
+        type: typev,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_image_add(images: any[]) {
+    console.log("Uploading Images");
+    if (!x_sopa_key) return;
+    let imagesURI: string[] = [];
+    let value = 0;
+    images.map((x) =>
+      ImgToBase64.getBase64String("file://" + x.uri).then((base: string) => {
+        imagesURI.push(base);
+      })
+    );
+    setTimeout(async () => {
+      console.log(imagesURI.length + " AuthContext " + value);
+      console.log(imagesURI[0].slice(0, 40));
+      try {
+        return await api_spot_image_add(x_sopa_key, imagesURI);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -95,6 +145,8 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
         logout,
         validate_login,
         validate_register,
+        spot_add,
+        spot_image_add,
       }}
     >
       {children}

@@ -13,6 +13,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import { TextInput } from "react-native-gesture-handler";
 import MapboxGL from "@react-native-mapbox-gl/maps";
 import FloatingCard from "../../components/FloatingCard";
+import { useTabContext } from "../../context/TabContext";
 
 MapboxGL.setAccessToken(
   "sk.eyJ1IjoiYW51cmFxIiwiYSI6ImNreHVsanZrYzJ1bjQycGtvdXk4dW1nZ2YifQ.GkpyynQmykNnhkdEcGN7KQ"
@@ -23,6 +24,7 @@ const { width, height } = Dimensions.get("window");
 const geo = MapboxGL.geoUtils;
 
 const Home = (props: any) => {
+  const { setCurCords } = useTabContext();
   const floatExit = () => {
     console.log("nothing");
   };
@@ -43,6 +45,9 @@ const Home = (props: any) => {
   useEffect(() => {
     console.log(location.latitude, location.longitude);
   }, [location]);
+  useEffect(() => {
+    return setCurCords(location);
+  });
   return (
     <>
       <View style={styles.searchBar}>
