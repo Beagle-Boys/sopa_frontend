@@ -24,7 +24,6 @@ const AddLocation = (props) => {
   const { spot_add, spot_image_add } = useAuthContext();
   const { curCords } = useTabContext();
   const [images, setImages] = useState<any>([]);
-  const [imagesId, setImagesId] = useState<any>([]);
   const [valueIndex, setValueIndex] = useState<number>();
 
   const [showCamera, setShowCamera] = useState(false);
@@ -45,13 +44,17 @@ const AddLocation = (props) => {
 
   useEffect(() => {
     props.route.params.setHide(showCamera);
-    if (showCamera == false && images.length > 0) {
-      (async () => await spot_image_add(images).then((a) => setImagesId(a)))();
-    }
+    // if (showCamera == false && images.length > 0) {
+    //   (async () => await spot_image_add(images).then((a) => setImagesId(a)))();
+    // }
   }, [showCamera]);
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { latitude, longitude, altitude } = curCords;
     // data location images type
+    let imagesId;
+    let imagesIdP = images.map(({id_promise}) => id_promise.then(([id]) => id));
+    
+    await Promise.all(imagesIdP).then((a) => imagesId = a)
     spot_add(
       locationName,
       { latitude, longitude, altitude },
@@ -140,7 +143,6 @@ const AddLocation = (props) => {
             images={images}
             setImages={setImages}
             setShowCamera={setShowCamera}
-            setImagesId={setImagesId}
           />
         </View>
       ) : images.length == 0 ? null : (

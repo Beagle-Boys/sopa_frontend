@@ -137,10 +137,11 @@ export async function api_spot_image_add(x_sopa_key: string, data: any) {
     headers: headers,
     body: JSON.stringify(data),
   };
+  // console.log(data)
+  // console.log("api data :", data[0]._W.slice(0, 20))
   let response = await fetch(`${API_URL}/user/spot/image/add`, request_options);
   let status = response.status;
   if (status !== 200) {
-    console.log(x_sopa_key);
     throw new Error("Adding Images Failed! " + status);
   }
   return await response.json();

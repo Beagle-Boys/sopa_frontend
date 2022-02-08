@@ -19,7 +19,7 @@ import { useAuthContext } from "../../context/AuthContext";
 
 const { height, width } = Dimensions.get("window");
 
-const CameraAdd = ({ images, setImages, setShowCamera, setImagesId }) => {
+const CameraAdd = ({ images, setImages, setShowCamera }) => {
   const { spot_image_add } = useAuthContext();
   const Ypos = useRef(new Animated.Value(height)).current;
   const camera = useRef<Camera>(null);
@@ -47,6 +47,7 @@ const CameraAdd = ({ images, setImages, setShowCamera, setImagesId }) => {
         uri: "file://" + photo?.path,
         height: photo?.height,
         width: photo?.width,
+        id_promise: spot_image_add(["file://"+photo?.path])
       },
       ...images,
     ]);

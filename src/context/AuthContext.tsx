@@ -116,18 +116,18 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
   }
 
   async function spot_image_add(images: any[]) {
-    console.log("Uploading Images");
+    console.log(`Uploading ${images.length} Images`);
     if (!x_sopa_key) return;
     let imagesURI: string[] = [];
     let value = 0;
-    images.map((x) =>
-      ImgToBase64.getBase64String("file://" + x.uri).then((base: string) => {
-        imagesURI.push(base);
-      })
+    imagesURI = images.map((x) =>
+      ImgToBase64.getBase64String(x).then((base: string) => base).catch((e) => console.log("Base64 ERROR"))
     );
+    Promise.all(imagesURI).then((a) => imagesURI = a)
     setTimeout(async () => {
-      console.log(imagesURI.length + " AuthContext " + value);
-      console.log(imagesURI[0].slice(0, 40));
+    // console.log(imagesURI)
+      console.log(imagesURI.length + " AuthContext ");
+      // console.log(imagesURI.slice(0, 40));
       try {
         return await api_spot_image_add(x_sopa_key, imagesURI);
       } catch (e) {
