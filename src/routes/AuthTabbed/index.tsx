@@ -5,6 +5,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import Home from "../../screens/Home";
 import AddLocation from "../../screens/AddLocation";
 import StarredLocation from "../../screens/StarredLocation";
+import HomeStack from "../HomeStack";
 
 import { TabProvider } from ".././../context/TabContext";
 
@@ -53,6 +54,7 @@ const AuthTabbed = () => {
             ),
           }}
           component={Home}
+          initialParams={{ setHide }}
         />
       </Tab.Navigator>
     </TabProvider>

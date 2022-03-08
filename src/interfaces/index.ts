@@ -23,4 +23,5 @@ export interface AuthContextInterface {
     typev: string
   ) => Promise<void>;
   spot_image_add: (images: string[]) => Promise<[]>;
+  spot_getall: (data: any) => Promise<[]>;
 }

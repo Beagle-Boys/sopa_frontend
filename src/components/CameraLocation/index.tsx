@@ -42,12 +42,14 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
     console.log(photo?.path);
     console.log("take photo end");
     // images.push({ uri: "file://" + photo?.path });
+    let img_id = await spot_image_add(["file://" + photo?.path]);
+    console.log("img id : " + img_id);
     setImages([
       {
         uri: "file://" + photo?.path,
         height: photo?.height,
         width: photo?.width,
-        id_promise: spot_image_add(["file://"+photo?.path])
+        id_promise: img_id,
       },
       ...images,
     ]);

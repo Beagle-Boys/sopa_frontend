@@ -155,36 +155,39 @@ const SignUp = (props: any) => {
         </View>
 
         <Text style={styles.signUpTitle}>Registration</Text>
-
         <View style={styles.form}>
-          <View style={styles.inpGroup}>
-            <TextInput
-              placeholder="Username"
-              returnKeyType="next"
-              editable={!otpId}
-              onChangeText={setName}
-              onSubmitEditing={editNextInput}
-              ref={nameInputRef}
-              style={styles.textInp}
-            >
-              {nameError ? <Text>{nameError}</Text> : null}
-            </TextInput>
-          </View>
-          <View style={[styles.inpGroup, styles.sameLine]}>
-            <Text style={styles.labelNum}>+91</Text>
-            <TextInput
-              placeholder="Mobile"
-              returnKeyType="next"
-              maxLength={10}
-              editable={!otpId}
-              onChangeText={setMobile}
-              onSubmitEditing={editNextInput}
-              ref={mobileInputRef}
-              style={styles.textInp}
-            >
-              {mobileError ? <Text>{mobileError}</Text> : null}
-            </TextInput>
-          </View>
+          {otpId.length == 0 && (
+            <>
+              <View style={styles.inpGroup}>
+                <TextInput
+                  placeholder="Username"
+                  returnKeyType="next"
+                  editable={!otpId}
+                  onChangeText={setName}
+                  onSubmitEditing={editNextInput}
+                  ref={nameInputRef}
+                  style={styles.textInp}
+                >
+                  {nameError ? <Text>{nameError}</Text> : null}
+                </TextInput>
+              </View>
+              <View style={[styles.inpGroup, styles.sameLine]}>
+                <Text style={styles.labelNum}>+91</Text>
+                <TextInput
+                  placeholder="Mobile"
+                  returnKeyType="next"
+                  maxLength={10}
+                  editable={!otpId}
+                  onChangeText={setMobile}
+                  onSubmitEditing={editNextInput}
+                  ref={mobileInputRef}
+                  style={styles.textInp}
+                >
+                  {mobileError ? <Text>{mobileError}</Text> : null}
+                </TextInput>
+              </View>
+            </>
+          )}
           {otpId.length > 0 ? (
             <>
               <View>
@@ -218,8 +221,9 @@ const SignUp = (props: any) => {
                   ? otp.length != 4
                   : mobile.length != 10 || name.length < 3)
               }
-              body="Sign In"
+              body={otpId.length > 0 ? "Sign In" : "Get OTP"}
               onPress={otpId ? validate_otp : getOtpId}
+              spinnerAnimation={isLoading}
             />
           </View>
         </View>

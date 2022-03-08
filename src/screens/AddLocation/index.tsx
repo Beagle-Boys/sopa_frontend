@@ -52,18 +52,28 @@ const AddLocation = (props) => {
     const { latitude, longitude, altitude } = curCords;
     // data location images type
     let imagesId;
-    let imagesIdP = images.map(({id_promise}) => id_promise.then(([id]) => id));
-    
-    await Promise.all(imagesIdP).then((a) => imagesId = a)
-    spot_add(
-      locationName,
-      { latitude, longitude, altitude },
-      imagesId,
-      valueIndex ? "PRIVATE" : "PUBLIC"
+    let imagesIdP = images.map(
+      ({ id_promise }) => console.log(id_promise)
+      // ({ id_promise }) => id_promise
+      // id_promise.then((x) => console.log(x))
     );
+    console.log(typeof images[0].id_promise);
+
+    await Promise.all(imagesIdP)
+      .then(console.log)
+      // .then((a) => (imagesId = a))
+      .catch(() => console.log("Promise All failed"));
+    // console.log(imagesId);
+    // spot_add(
+    //   locationName,
+    //   { latitude, longitude, altitude },
+    //   imagesId,
+    //   valueIndex ? "PRIVATE" : "PUBLIC"
+    // );
   };
   const [locationName, setLocationName] = useState("");
-  const isValid = locationName.length != 0 && valueIndex != null;
+  const isValid =
+    locationName.length != 0 && valueIndex != null && images.length != 0;
 
   return (
     <View style={{ backgroundColor: "#FFF", flex: 1, zIndex: 0 }}>

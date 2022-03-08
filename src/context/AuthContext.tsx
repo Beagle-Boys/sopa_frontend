@@ -34,6 +34,7 @@ const AuthContext = createContext<AuthContextInterface>({
     typev: string
   ) => {},
   spot_image_add: async (images: any[]) => [],
+  spot_getall: async (data: any[]) => [],
 });
 
 export function useAuthContext() {
@@ -121,19 +122,35 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
     let imagesURI: string[] = [];
     let value = 0;
     imagesURI = images.map((x) =>
-      ImgToBase64.getBase64String(x).then((base: string) => base).catch((e) => console.log("Base64 ERROR"))
+      ImgToBase64.getBase64String(x)
+        .then((base: string) => base)
+        .catch((e) => console.log("Base64 ERROR"))
     );
-    Promise.all(imagesURI).then((a) => imagesURI = a)
+    Promise.all(imagesURI).then((a) => (imagesURI = a));
     setTimeout(async () => {
-    // console.log(imagesURI)
-      console.log(imagesURI.length + " AuthContext ");
+      // console.log(imagesURI)
+      // console.log(imagesURI.length + " AuthContext ");
       // console.log(imagesURI.slice(0, 40));
       try {
+        console.log("auth context spot add");
         return await api_spot_image_add(x_sopa_key, imagesURI);
       } catch (e) {
         console.error(e);
       }
     });
+  }
+
+  async function spot_getall(data: any) {
+    console.log("Fetch All Spots");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_spot_getall(x_sopa_key, data, 9999999999, false);
+      console.log("Auth Spots :");
+      console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -147,6 +164,7 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
         validate_register,
         spot_add,
         spot_image_add,
+        spot_getall,
       }}
     >
       {children}

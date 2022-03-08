@@ -1,61 +1,44 @@
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   View,
   Text,
-  Animated,
   ScrollView,
   Image,
   Dimensions,
   Pressable,
-  Easing,
 } from "react-native";
 import styles from "./styles";
 import Icon from "react-native-vector-icons/Ionicons";
 import MaterialCom from "react-native-vector-icons/MaterialCommunityIcons";
 import Octicons from "react-native-vector-icons/Octicons";
 import ShowImages from "../ShowImages";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  SlideInDown,
+  SlideOutDown,
+  Transition,
+  Layout,
+  withSpring,
+  FadeOut,
+  FadeIn,
+} from "react-native-reanimated";
+import {
+  GestureDetector,
+  Gesture,
+  Directions,
+} from "react-native-gesture-handler";
 
 const { height, width } = Dimensions.get("screen");
 
-const FloatingCard = ({ floatExit }) => {
+const FloatingCard = ({ rentScreen }) => {
   const Ypos = useRef(new Animated.Value(400)).current;
+  const [cardStatus, setCardStatus] = useState(false);
 
-  floatExit = () => {
-    Animated.timing(Ypos, {
-      toValue: 400,
-      duration: 500,
-      useNativeDriver: true,
-      easing: Easing.inOut(Easing.back(1)),
-    }).start();
-  };
-
-  useEffect(() => {
-    Animated.timing(Ypos, {
-      toValue: 0,
-      duration: 500,
-      useNativeDriver: true,
-      easing: Easing.inOut(Easing.back(1)),
-    }).start();
-
-    return () => console.log("USE EFFECT RETURN");
-    //   Animated.timing(Ypos, {
-    //   toValue: 400,
-    //   duration: 500,
-    //   useNativeDriver: true,
-    //   easing: Easing.inOut(Easing.back(1)),
-    // }).start();
-  }, []);
-  useLayoutEffect(() => {
-    return () => {
-      console.log("USE LAYOUT EFFECT RETURN");
-      Animated.timing(Ypos, {
-        toValue: 400,
-        duration: 500,
-        useNativeDriver: true,
-        easing: Easing.inOut(Easing.back(1)),
-      }).start();
-    };
-  }, []);
+  // const offset = useSharedValue(1);
+  // const animatedStyles = useAnimatedStyle(() => {
+  //   return { transform: [{ scale: offset.value }] };
+  // });
   const images = [
     {
       uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
@@ -67,10 +50,81 @@ const FloatingCard = ({ floatExit }) => {
       uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
     },
   ];
+  const posts = [
+    "asd",
+    "asd",
+    "xyz",
+    "ops",
+    "asd",
+    "asd",
+    "xyz",
+    "ops",
+    "asd",
+    "asd",
+    "xyz",
+    "ops",
+    "asd",
+    "asd",
+    "xyz",
+    "ops",
+  ];
+  const animateCard = () => {
+    // if (!cardStatus) offset.value = withSpring(2);
+    // else offset.value = withSpring(1);
+    setCardStatus(!cardStatus);
+  };
 
   return (
-    <Animated.View style={[styles.container, { translateY: Ypos }]}>
-      {/* Heading and subheading */}
+    // <GestureDetector
+    // gesture={Gesture.Fling()
+    //   .direction(Directions.UP)
+    //   .onStart(() => {
+    //     console.log("animation started");
+    //   })
+    //   .onFinalize(() => {
+    //     console.log("animation finalized");
+    //     animateCard();
+    //   })}
+    // >
+    <Animated.View
+      entering={SlideInDown.duration(300)}
+      exiting={SlideOutDown}
+      layout={Layout.duration(300).springify().mass(0.5)}
+      style={[
+        styles.container,
+
+        cardStatus
+          ? {
+              height: "100%",
+              width: "100%",
+              marginBottom: 0,
+              borderRadius: 0,
+            }
+          : {
+              height: "auto",
+              width: "95%",
+              marginBottom: 5,
+              marginHorizontal: "2.5%",
+              borderRadius: 5,
+            },
+
+        // animatedStyles,
+        // cardStatus
+        //   ? {
+        //       height: "100%",
+        //       width: "100%",
+        //       marginHorizontal: 0,
+        //       marginBottom: 0,
+        //       borderRadius: 0,
+        //     }
+        //   : null,
+      ]}
+    >
+      <Pressable onPress={animateCard} style={{ width: "100%" }}>
+        <Text style={{ fontSize: 18, textAlign: "center" }}>
+          {cardStatus ? "Down" : "Up"}
+        </Text>
+      </Pressable>
       <View
         style={{
           flexDirection: "row",
@@ -86,7 +140,12 @@ const FloatingCard = ({ floatExit }) => {
             <Text>7 km</Text>
           </View>
         </View>
-        <View style={{ display: "flex", justifyContent: "center" }}>
+        <View
+          style={[
+            { display: "flex", justifyContent: "center" },
+            cardStatus ? { paddingRight: 15 } : null,
+          ]}
+        >
           <Text
             style={{ color: "white", backgroundColor: "#bA3434", padding: 5 }}
           >
@@ -132,25 +191,87 @@ const FloatingCard = ({ floatExit }) => {
         </View>
       </View>
       <View
-        style={{
-          alignSelf: "flex-end",
-          flexDirection: "row",
-          paddingHorizontal: 20,
-          paddingVertical: 15,
-        }}
+        style={[
+          {
+            // backgroundColor: "#ccc",
+            // justifyContent: "space-between",
+            // alignContent: "space-between",
+            flexDirection: "row",
+            paddingHorizontal: 20,
+            paddingVertical: 15,
+            width: "100%",
+          },
+          cardStatus
+            ? { justifyContent: "space-between" }
+            : { justifyContent: "flex-end" },
+        ]}
       >
+        {cardStatus ? (
+          <Animated.View
+            entering={FadeIn}
+            exiting={FadeOut}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                height: 40,
+                width: 40,
+                backgroundColor: "#e9e9e9",
+                borderWidth: 3,
+                borderColor: "#00f",
+                borderRadius: 20,
+              }}
+            />
+            <Text style={{ fontSize: 18, marginLeft: 10 }}>Name Name</Text>
+          </Animated.View>
+        ) : null}
         <Pressable
-          style={{
-            paddingHorizontal: 30,
-            borderRadius: 10,
-            paddingVertical: 5,
-            backgroundColor: "#923ed3",
-          }}
+          style={[
+            {
+              paddingHorizontal: 30,
+              borderRadius: 10,
+              paddingVertical: 5,
+              backgroundColor: "#923ed3",
+            },
+
+            cardStatus ? { marginRight: 15 } : null,
+          ]}
+          onPress={() => rentScreen()}
         >
           <Text style={{ fontSize: 20, color: "#fff" }}>BOOK</Text>
         </Pressable>
       </View>
+      {cardStatus && (
+        <Animated.View layout={Layout} exiting={FadeOut} style={{ flex: 1 }}>
+          <ScrollView
+            style={{ width: width, paddingHorizontal: 10 }}
+            horizontal={false}
+            scrollEnabled={true}
+          >
+            <Text style={{ fontSize: 18 }}>Reviews</Text>
+            {posts.map((x, y) => (
+              <View
+                key={y}
+                style={{
+                  marginVertical: 5,
+                  backgroundColor: "#e9e9e9",
+                  borderRadius: 10,
+                  padding: 5,
+                  paddingHorizontal: 20,
+                }}
+              >
+                <Text>Name Name</Text>
+                <Text>{x}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </Animated.View>
+      )}
     </Animated.View>
+    // </GestureDetector>
   );
 };
 
