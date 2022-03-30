@@ -24,4 +24,14 @@ export interface AuthContextInterface {
   ) => Promise<void>;
   spot_image_add: (images: string[]) => Promise<[]>;
   spot_getall: (data: any) => Promise<[]>;
+  user_details_fetch: () => Promise<any>;
+  user_details_update: (data: any) => Promise<any>;
+  spot_search: (query: string) => Promise<[]>;
+  spot_getById: (spotId: string) => Promise<{}>;
+  spot_create_reservation: (spotId: string, data: any) => Promise<{}>;
+  spot_list_reservation_created: () => Promise<[]>;
+  spot_list_reservation_raised: () => Promise<[]>;
+  user_initiate_premium: () => Promise<{}>;
+  user_complete_premium: () => Promise<{}>;
+  spot_reservation_respond: (data: any) => Promise<{}>;
 }

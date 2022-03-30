@@ -7,6 +7,9 @@ import {
   Dimensions,
   PermissionsAndroid,
   Alert,
+  Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import styles from "./styles";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -15,6 +18,7 @@ import { TextInput } from "react-native-gesture-handler";
 import MapboxGL from "@react-native-mapbox-gl/maps";
 import FloatingCard from "../../components/FloatingCard";
 import { useTabContext } from "../../context/TabContext";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 MapboxGL.setAccessToken(
   "sk.eyJ1IjoiYW51cmFxIiwiYSI6ImNreHVsanZrYzJ1bjQycGtvdXk4dW1nZ2YifQ.GkpyynQmykNnhkdEcGN7KQ"
@@ -30,15 +34,17 @@ const Home = (props: any) => {
   const [location, setLocation] = useState<MapboxGL.Coordinates>([]);
   const [testLocation, setTestLocation] = useState(false);
   const [userLocation, setUserLocation] = useState(false);
-  const { logout, spot_getall } = useAuthContext();
+  const { logout, spot_getall, spot_search, spot_getById } = useAuthContext();
   const [spotLocation, setSpotLocation] = useState<Array<any> | null>(null);
+  const [searchText, setSearchText] = useState<string>("");
+  const [spotInfo, setSpotInfo] = useState<{} | null>();
   // useEffect(() => {
   //   console.log(location.latitude, location.longitude);
   // }, [location]);
-  useEffect(() => {
-    console.log(location.latitude, location.longitude);
-    return setCurCords(location);
-  });
+  // useEffect(() => {
+  // console.log(location.latitude, location.longitude);
+  // setCurCords(location);
+  // });
   const requestLocationPermission = async () => {
     PermissionsAndroid.requestMultiple([
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -63,13 +69,12 @@ const Home = (props: any) => {
       altitude: 0,
     });
     setSpotLocation(spots);
-    console.log("Spots Home : ");
-    console.log(spots);
+    // console.log("Spots Home : ");
+    // console.log(spots);
   };
 
   useEffect(() => {
-    requestLocationPermission();
-    renderLocationPoints();
+    requestLocationPermission().then(() => renderLocationPoints());
   }, []);
   const createLocationPermissionAlert = () =>
     Alert.alert("Alert", "Give Persmission for Location", [
@@ -101,29 +106,138 @@ const Home = (props: any) => {
     camera.current.zoomTo(1, 2500);
   };
   const rentScreen = () => {
-    props.navigation.navigate("Rent");
+    props.navigation.navigate("Rent", {
+      spotId: spotInfo?.spotId,
+      name: spotInfo?.address?.data,
+    });
   };
+  const inputBox = useRef(null);
+  const [searchSugg, setSearchSugg] = useState([]);
   return (
     <>
-      <View style={styles.searchBar}>
-        <Pressable
-          style={[styles.menuBtn, {}]}
-          onPress={() => props.navigation.toggleDrawer()}
+      <View style={styles.searchBarPos}>
+        <View
+          style={[
+            styles.searchBar,
+            searchSugg?.length > 0 && searchText?.length > 1
+              ? {
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderBottomWidth: 1,
+                  borderColor: "#999",
+                }
+              : null,
+          ]}
         >
-          <Icon name="menu" size={24} color="#000" />
-        </Pressable>
-        <TextInput
-          style={[styles.searchInput, {}]}
-          placeholder="Enter Location"
-        />
+          <Pressable
+            style={[styles.menuBtn, {}]}
+            onPress={() => props.navigation.toggleDrawer()}
+          >
+            <Icon name="menu" size={24} color="#000" />
+          </Pressable>
+          <TextInput
+            ref={inputBox}
+            style={[styles.searchInput, {}]}
+            placeholder="Enter Location"
+            onChangeText={(v) => {
+              if (v.length > 2) {
+                spot_search(v).then((s) => setSearchSugg(s));
+              }
+              setSearchText(v);
+            }}
+          />
+          {searchText.length > 0 ? (
+            <Pressable
+              style={[styles.menuBtn, {}]}
+              onPress={() => {
+                inputBox?.current.clear();
+                setSearchText("");
+                setSearchSugg([]);
+              }}
+            >
+              <Icon name="close" size={24} color="#000" />
+            </Pressable>
+          ) : null}
+        </View>
+        {searchText?.length > 2 && searchSugg?.length > 0 && (
+          <Animated.View
+            style={{
+              backgroundColor: "#f8f8f8",
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+              overflow: "hidden",
+              paddingBottom: 10,
+            }}
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}
+          >
+            {searchSugg?.map((x, y) => (
+              <View style={{}}>
+                <Pressable
+                  key={y}
+                  style={({ pressed }) => [
+                    {
+                      backgroundColor: pressed ? "#eee" : null,
+                    },
+                  ]}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    console.log(spotInfo?.spotId);
+                    console.log(x?.spotId);
+                    if (spotInfo?.spotId != x?.spotId)
+                      spot_getById(x?.spotId).then((s) => {
+                        setSpotInfo(s);
+                        setTestLocation(true);
+                      });
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      paddingVertical: 5,
+                      paddingHorizontal: 20,
+                      color: "#555",
+                    }}
+                  >
+                    {x?.address?.data}
+                  </Text>
+                </Pressable>
+              </View>
+            ))}
+          </Animated.View>
+        )}
       </View>
+      <Pressable
+        style={{
+          position: "absolute",
+          bottom: 0,
+          height: 48,
+          width: 48,
+          right: 0,
+          padding: 10,
+          backgroundColor: "#000",
+          margin: 10,
+          borderRadius: 24,
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          borderColor: "#ccc",
+          borderWidth: 1.5,
+          zIndex: 3,
+        }}
+        onPress={() => flyToUserLocation()}
+      >
+        <Icon name="my-location" size={25} color="#fff" />
+      </Pressable>
+
       <View style={styles.container}>
         {/*       <View style={{ height: height, width: width }}> */}
+
         <MapboxGL.MapView
           // ref={camera}
           style={{ flex: 1, marginBottom: 30 }}
           compassEnabled={true}
-          compassViewPosition={3}
+          compassViewPosition={4}
           logoEnabled={false}
           attributionEnabled={false}
           compassViewMargins={{ x: 10, y: 80 }}
@@ -155,22 +269,35 @@ const Home = (props: any) => {
             id="1"
             title="nooooooooooooooooooooo"
             coordinate={[77.2658739, 28.6369355]}
+            onSelected={() => {
+              setSpotInfo(null);
+              setTestLocation(true);
+            }}
           />
           {spotLocation &&
             spotLocation.map((x, y) => {
-              console.log("spot :" + x);
+              // console.log("spot :" + x);
               return (
                 <MapboxGL.PointAnnotation
-                  id="1"
-                  title="nooooooooooooooooooooo"
+                  key={y}
+                  id={x.spotId}
+                  title={x.address.data}
                   coordinate={[
-                    x.address.location.latitude,
                     x.address.location.longitude,
+                    x.address.location.latitude,
                   ]}
+                  onSelected={() => {
+                    console.log("Location Point Pressed" + x.address.data);
+                    spot_getById(x?.spotId).then((s) => {
+                      setSpotInfo(s);
+                      setTestLocation(true);
+                    });
+                  }}
                 />
               );
             })}
         </MapboxGL.MapView>
+        {/*
         <Pressable
           style={{
             position: "absolute",
@@ -181,7 +308,10 @@ const Home = (props: any) => {
             borderTopLeftRadius: 10,
             borderBottomLeftRadius: 10,
           }}
-          onPress={() => setTestLocation(testLocation ? false : true)}
+          onPress={() => {
+            if (testLocation == false) setSpotInfo(null);
+            setTestLocation(testLocation ? false : true);
+          }}
         >
           <Text style={{ fontSize: 17 }}>Card</Text>
         </Pressable>
@@ -198,32 +328,23 @@ const Home = (props: any) => {
           onPress={() => logout()}
         >
           <Text style={{ fontSize: 17, color: "#fff" }}>Logout</Text>
-        </Pressable>
+          </Pressable> */}
 
-        <Pressable
-          style={{
-            position: "absolute",
-            height: 48,
-            width: 48,
-            right: 0,
-            bottom: 50, // MapView margin + range(0, margin of compass)
-            padding: 10,
-            backgroundColor: "#000",
-            marginRight: 10,
-            borderRadius: 24,
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            borderColor: "#ccc",
-            borderWidth: 1.5,
-          }}
-          onPress={() => flyToUserLocation()}
-        >
-          <Icon name="my-location" size={25} color="#fff" />
-        </Pressable>
         {/* </View> */}
       </View>
-      {testLocation ? <FloatingCard rentScreen={rentScreen} /> : null}
+      {testLocation ? (
+        <Pressable
+          onPress={() => setTestLocation(false)}
+          style={{
+            position: "absolute",
+            height,
+            width,
+          }}
+        ></Pressable>
+      ) : null}
+      {testLocation ? (
+        <FloatingCard rentScreen={rentScreen} spotInfo={spotInfo} />
+      ) : null}
     </>
   );
 };

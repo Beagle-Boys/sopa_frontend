@@ -14,6 +14,16 @@ import {
   api_spot_add,
   api_spot_getall,
   api_spot_image_add,
+  api_user_details,
+  api_update_user_details,
+  api_search_spots,
+  api_get_spot_details,
+  api_create_reservation,
+  api_list_reservation_created,
+  api_list_reservation_raised,
+  api_respond_reservation,
+  api_initiate_premium,
+  api_complete_premium,
 } from "../apis";
 import { AuthContextInterface, SignUpData } from "../interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -35,6 +45,16 @@ const AuthContext = createContext<AuthContextInterface>({
   ) => {},
   spot_image_add: async (images: any[]) => [],
   spot_getall: async (data: any[]) => [],
+  user_details_fetch: async () => {},
+  user_details_update: async (data: any) => {},
+  spot_search: async (query: string) => [],
+  spot_getById: async (spotId: string) => {},
+  spot_create_reservation: async (spotId: string, data: any) => {},
+  spot_list_reservation_created: async () => [],
+  spot_list_reservation_raised: async () => [],
+  spot_reservation_respond: async (data: any) => {},
+  user_initiate_premium: async () => {},
+  user_complete_premium: async () => {},
 });
 
 export function useAuthContext() {
@@ -44,7 +64,10 @@ export function useAuthContext() {
 export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
   useEffect(() => {
     AsyncStorage.getItem("@x_sopa_key")
-      .then((x_sopa_key) => setXSopaKey(x_sopa_key))
+      .then((x_sopa_key) => {
+        setXSopaKey(x_sopa_key);
+        console.log("SOPA KEY : " + x_sopa_key);
+      })
       .catch((e) => console.log(e))
       .finally(() => SplashScreen.hide());
   }, []);
@@ -126,26 +149,152 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
         .then((base: string) => base)
         .catch((e) => console.log("Base64 ERROR"))
     );
-    Promise.all(imagesURI).then((a) => (imagesURI = a));
-    setTimeout(async () => {
-      // console.log(imagesURI)
-      // console.log(imagesURI.length + " AuthContext ");
-      // console.log(imagesURI.slice(0, 40));
-      try {
-        console.log("auth context spot add");
-        return await api_spot_image_add(x_sopa_key, imagesURI);
-      } catch (e) {
-        console.error(e);
-      }
-    });
+    await Promise.all(imagesURI).then((a) => (imagesURI = a));
+    // console.log(imagesURI)
+    // console.log(imagesURI.length + " AuthContext ");
+    // console.log(imagesURI.slice(0, 40));
+    try {
+      const id = await api_spot_image_add(x_sopa_key, imagesURI);
+      console.log("image id from context " + id);
+      return id;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async function spot_getall(data: any) {
-    console.log("Fetch All Spots");
+    // console.log("Fetch All Spots DATA :");
+
+    console.log(data);
     if (!x_sopa_key) return;
     try {
-      const spots = await api_spot_getall(x_sopa_key, data, 9999999999, false);
-      console.log("Auth Spots :");
+      const spots = await api_spot_getall(x_sopa_key, data, 12000000, true);
+      // console.log("Auth Spots :");
+      // console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_reservation_respond(data: any) {
+    console.log("Responding to Reservation");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_respond_reservation(x_sopa_key, data);
+      console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function user_details_fetch() {
+    if (!x_sopa_key) return;
+    try {
+      const user_details = await api_user_details(x_sopa_key);
+      console.log("Auth User Details :");
+      console.log(user_details);
+      return user_details;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function user_details_update(data: any) {
+    console.log(data);
+    if (!x_sopa_key) return;
+    try {
+      const user_details = await api_update_user_details(x_sopa_key, data);
+      console.log("Auth User Details :");
+      console.log(user_details);
+      return user_details;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_search(query: string) {
+    console.log("Searching All Spots");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_search_spots(x_sopa_key, query);
+      console.log("Auth Spots Searched :");
+      console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_getById(spotId: string) {
+    console.log("Get by Id Spot");
+    if (!x_sopa_key) return;
+    try {
+      const spot = await api_get_spot_details(x_sopa_key, spotId);
+      console.log(spot);
+      return spot;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_create_reservation(spotId: string, data: any) {
+    console.log("Creating Spot Reservation");
+    if (!x_sopa_key) return;
+    try {
+      console.log(data);
+      const spot = await api_create_reservation(x_sopa_key, data, spotId);
+      console.log(spot);
+      return spot;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_list_reservation_created() {
+    console.log("Fetch All Created Reservation");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_list_reservation_created(x_sopa_key);
+      console.log("Reservations Created : ");
+      console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function spot_list_reservation_raised() {
+    console.log("Fetch All Created Reservation");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_list_reservation_raised(x_sopa_key);
+      console.log("Raised Reservations : ");
+      console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function user_initiate_premium() {
+    console.log("Initiating Premium");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_initiate_premium(x_sopa_key);
+      console.log(spots);
+      return spots;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function user_complete_premium(data: any) {
+    console.log("Completeing Premium");
+    if (!x_sopa_key) return;
+    try {
+      const spots = await api_complete_premium(x_sopa_key, data);
       console.log(spots);
       return spots;
     } catch (e) {
@@ -165,6 +314,16 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
         spot_add,
         spot_image_add,
         spot_getall,
+        user_details_fetch,
+        user_details_update,
+        spot_search,
+        spot_getById,
+        spot_create_reservation,
+        spot_list_reservation_created,
+        spot_list_reservation_raised,
+        spot_reservation_respond,
+        user_initiate_premium,
+        user_complete_premium,
       }}
     >
       {children}

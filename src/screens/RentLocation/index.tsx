@@ -11,12 +11,15 @@ import Animated, {
   FadeOutDown,
   Layout,
 } from "react-native-reanimated";
+import { useAuthContext } from "../../context/AuthContext";
 
 const StarredLocation = (props) => {
   // useEffect(() => {
   //   props.route.params[0]((prev) => !prev);
   // });
   const curDate = useRef(new Date());
+  const maxDate = useRef(new Date());
+  const { spot_create_reservation } = useAuthContext();
 
   const [fromDate, setFromDate] = useState<Date | null>(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
@@ -24,6 +27,9 @@ const StarredLocation = (props) => {
   const [calNo, setCalNo] = useState(0);
 
   const [selDate, setSelDate] = useState(false);
+  const { spotId, name } = props.route.params
+    ? props.route.params
+    : { spotId: "abc", name: "Demo Location" };
   // useEffect(() => {
   //   maxDate.setDate(curDate.current.getDate() + 2);
   //   console.log(maxDate);
@@ -34,12 +40,15 @@ const StarredLocation = (props) => {
     setCalNo(n);
   };
   const getDiffStr = () => {
-    const days = parseInt((toDate - fromDate) / (1000 * 60 * 60 * 24));
+    const days = parseInt(
+      (toDate!.getTime() - fromDate!.getTime()) / (1000 * 60 * 60 * 24)
+    );
     const hours = parseInt(
-      (Math.abs(toDate - fromDate) / (1000 * 60 * 60)) % 24
+      (Math.abs(toDate!.getTime() - fromDate!.getTime()) / (1000 * 60 * 60)) %
+        24
     );
     const minutes = parseInt(
-      (Math.abs(toDate.getTime() - fromDate.getTime()) / (1000 * 60)) % 60
+      (Math.abs(toDate!.getTime() - fromDate!.getTime()) / (1000 * 60)) % 60
     );
     let res;
     if (days) res = days + " days " + hours + " hrs " + minutes + " mins";
@@ -47,9 +56,15 @@ const StarredLocation = (props) => {
 
     return res;
   };
+  useEffect(() => {
+    maxDate.current.setDate(curDate.current.getDate() + 1);
+    maxDate.current.setHours(0);
+    maxDate.current.setMinutes(0);
+    maxDate.current.setSeconds(0);
+  }, []);
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <Text style={styles.center}>Reserve</Text>
+      <Text style={styles.center}>Reserve : {name}</Text>
       <View
         style={{
           // backgroundColor: "#aaa",
@@ -59,7 +74,15 @@ const StarredLocation = (props) => {
         }}
       >
         <Text style={{ fontSize: 21 }}>
-          From : {fromDate ? fromDate.toDateString() : null}
+          From :
+          <Text style={{ fontSize: 18, color: "#555" }}>
+            {fromDate
+              ? ` ${fromDate.toLocaleDateString()} ${fromDate.toLocaleTimeString(
+                  "en-US",
+                  { hour: "2-digit", minute: "2-digit" }
+                )}`
+              : null}
+          </Text>
         </Text>
         <Pressable onPress={() => calToggle(1)}>
           <View
@@ -69,7 +92,15 @@ const StarredLocation = (props) => {
           </View>
         </Pressable>
         <Text style={{ fontSize: 21, marginTop: 20 }}>
-          To : {toDate ? toDate.toDateString() : null}
+          To :
+          <Text style={{ fontSize: 18, color: "#555" }}>
+            {toDate
+              ? ` ${toDate.toLocaleDateString()} ${toDate.toLocaleTimeString(
+                  "en-US",
+                  { hour: "2-digit", minute: "2-digit" }
+                )}`
+              : null}
+          </Text>
         </Text>
         <Pressable
           onPress={() => calToggle(2)}
@@ -91,9 +122,9 @@ const StarredLocation = (props) => {
             date={calNo == 1 ? fromDate : toDate}
             minimumDate={calNo == 1 ? curDate.current : fromDate}
             mode="datetime"
-            minuteInterval={30}
+            minuteInterval={1}
             onDateChange={calNo == 1 ? setFromDate : setToDate}
-            // maximumDate={curDate.current}
+            maximumDate={maxDate.current}
           />
         </Animated.View>
       ) : null}
@@ -124,6 +155,30 @@ const StarredLocation = (props) => {
                 fontSize: 20,
                 paddingVertical: 5,
                 paddingHorizontal: 10,
+              }}
+              onPress={() => {
+                let start_time = fromDate;
+                let end_time = toDate;
+                spot_create_reservation(spotId, {
+                  start: `${
+                    start_time!.getHours() < 10
+                      ? "0" + start_time!.getHours()
+                      : start_time!.getHours()
+                  }${
+                    start_time!.getMinutes() < 10
+                      ? "0" + start_time!.getMinutes()
+                      : start_time!.getMinutes()
+                  }`,
+                  end: `${
+                    end_time!.getHours() < 10
+                      ? "0" + end_time!.getHours()
+                      : end_time!.getHours()
+                  }${
+                    end_time!.getMinutes() < 10
+                      ? "0" + end_time!.getMinutes()
+                      : end_time!.getMinutes()
+                  }`,
+                }).then(() => props.navigation.navigate("Home"));
               }}
             >
               Send Request

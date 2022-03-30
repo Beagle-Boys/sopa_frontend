@@ -27,6 +27,7 @@
     "react-native-image-base64": "^0.1.4",
     "react-native-image-viewing": "^0.2.1",
     "react-native-pager-view": "^5.4.9",
+    "react-native-razorpay": "^2.2.8",
     "react-native-reanimated": "^2.4.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.7.0",

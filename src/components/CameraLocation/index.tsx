@@ -30,7 +30,7 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
   const device = devices.back as CameraDevice;
   // console.log(devices.back);
   const clickPhoto = async () => {
-    console.log("take photo start");
+    // console.log("take photo start");
     const photo = await camera.current
       ?.takePhoto({
         qualityPrioritization: "speed",
@@ -40,10 +40,15 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
       .then((p) => p)
       .catch((e) => console.error(e.stack));
     console.log(photo?.path);
-    console.log("take photo end");
+    // console.log("take photo end");
     // images.push({ uri: "file://" + photo?.path });
-    let img_id = await spot_image_add(["file://" + photo?.path]);
+    let img_id;
+    await spot_image_add(["file://" + photo?.path]).then((id) => {
+      img_id = id;
+      console.log(id);
+    });
     console.log("img id : " + img_id);
+    console.log(typeof img_id);
     setImages([
       {
         uri: "file://" + photo?.path,
@@ -53,7 +58,7 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
       },
       ...images,
     ]);
-    console.log("height width " + height + " " + width);
+    // console.log("height width " + height + " " + width);
   };
   useEffect(() => {
     Animated.timing(Ypos, {

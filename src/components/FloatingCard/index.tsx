@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   Pressable,
+  TextInput,
 } from "react-native";
 import styles from "./styles";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -30,8 +31,9 @@ import {
 } from "react-native-gesture-handler";
 
 const { height, width } = Dimensions.get("screen");
-
-const FloatingCard = ({ rentScreen }) => {
+const IMAGE_URI =
+  "https://public-spot-image-bucket.s3.ap-south-1.amazonaws.com";
+const FloatingCard = ({ rentScreen, spotInfo }) => {
   const Ypos = useRef(new Animated.Value(400)).current;
   const [cardStatus, setCardStatus] = useState(false);
 
@@ -39,35 +41,40 @@ const FloatingCard = ({ rentScreen }) => {
   // const animatedStyles = useAnimatedStyle(() => {
   //   return { transform: [{ scale: offset.value }] };
   // });
-  const images = [
-    {
-      uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
-    },
-    {
-      uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
-    },
-    {
-      uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
-    },
-  ];
-  const posts = [
-    "asd",
-    "asd",
-    "xyz",
-    "ops",
-    "asd",
-    "asd",
-    "xyz",
-    "ops",
-    "asd",
-    "asd",
-    "xyz",
-    "ops",
-    "asd",
-    "asd",
-    "xyz",
-    "ops",
-  ];
+
+  const genBucketURIs = () => {
+    const uriImg = spotInfo?.images.map((imgId) => ({
+      uri: IMAGE_URI + `/${imgId}.jpeg`,
+    }));
+    // console.log("Generate URIs");
+    // console.log(uriImg);
+    return uriImg;
+  };
+
+  const images = spotInfo
+    ? genBucketURIs()
+    : [
+        {
+          uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
+        },
+        {
+          uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
+        },
+        {
+          uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
+        },
+      ];
+
+  const posts = spotInfo
+    ? spotInfo.reviews
+    : [
+        { comment: "asd", userName: "Name Name" },
+        { comment: "asd", userName: "Name Name" },
+        { comment: "asd", userName: "Name Name" },
+        { comment: "asd", userName: "Name Name" },
+        { comment: "asd", userName: "Name Name" },
+        { comment: "asd", userName: "Name Name" },
+      ];
   const animateCard = () => {
     // if (!cardStatus) offset.value = withSpring(2);
     // else offset.value = withSpring(1);
@@ -134,10 +141,12 @@ const FloatingCard = ({ rentScreen }) => {
         }}
       >
         <View>
-          <Text style={{ fontSize: 20 }}>Location Name</Text>
+          <Text style={{ fontSize: 20 }}>
+            {spotInfo ? spotInfo.address.data : "Location Name"}
+          </Text>
           <View style={{ display: "flex", flexDirection: "row" }}>
             <Icon name="location" size={20} color="black" />
-            <Text>7 km</Text>
+            <Text>1 km</Text>
           </View>
         </View>
         <View
@@ -147,9 +156,14 @@ const FloatingCard = ({ rentScreen }) => {
           ]}
         >
           <Text
-            style={{ color: "white", backgroundColor: "#bA3434", padding: 5 }}
+            style={[
+              { color: "white", backgroundColor: "#bA3434", padding: 5 },
+              spotInfo?.type == "PUBLIC"
+                ? { backgroundColor: "#90ee90" }
+                : null,
+            ]}
           >
-            private
+            {spotInfo ? spotInfo?.type : "PRIVATE"}
           </Text>
         </View>
       </View>
@@ -179,14 +193,18 @@ const FloatingCard = ({ rentScreen }) => {
         <View style={{ flexDirection: "row" }}>
           <MaterialCom name="clock-outline" size={20} />
           <Text style={{ marginStart: 10 }}>
-            last visited 2 hrs ago by a SOPA user.
+            {spotInfo
+              ? spotInfo?.lastActivity
+              : "last visited 2 hrs ago by a SOPA user."}
           </Text>
         </View>
         <View style={{ flexDirection: "row" }}>
           <Octicons name="graph" size={20} />
 
           <Text style={{ marginStart: 10 }}>
-            high number of user parking this hour.
+            {spotInfo
+              ? `${spotInfo.useCount} times used by a SOPA user.`
+              : "high number of user parking this hour."}
           </Text>
         </View>
       </View>
@@ -225,24 +243,28 @@ const FloatingCard = ({ rentScreen }) => {
                 borderRadius: 20,
               }}
             />
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Name Name</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10 }}>
+              {spotInfo ? spotInfo.by.userName : "Name Name"}
+            </Text>
           </Animated.View>
         ) : null}
-        <Pressable
-          style={[
-            {
-              paddingHorizontal: 30,
-              borderRadius: 10,
-              paddingVertical: 5,
-              backgroundColor: "#923ed3",
-            },
+        {spotInfo?.type == "PRIVATE" ? (
+          <Pressable
+            style={[
+              {
+                paddingHorizontal: 30,
+                borderRadius: 10,
+                paddingVertical: 5,
+                backgroundColor: "#923ed3",
+              },
 
-            cardStatus ? { marginRight: 15 } : null,
-          ]}
-          onPress={() => rentScreen()}
-        >
-          <Text style={{ fontSize: 20, color: "#fff" }}>BOOK</Text>
-        </Pressable>
+              cardStatus ? { marginRight: 15 } : null,
+            ]}
+            onPress={() => rentScreen()}
+          >
+            <Text style={{ fontSize: 20, color: "#fff" }}>BOOK</Text>
+          </Pressable>
+        ) : null}
       </View>
       {cardStatus && (
         <Animated.View layout={Layout} exiting={FadeOut} style={{ flex: 1 }}>
@@ -263,11 +285,38 @@ const FloatingCard = ({ rentScreen }) => {
                   paddingHorizontal: 20,
                 }}
               >
-                <Text>Name Name</Text>
-                <Text>{x}</Text>
+                <Text>{x.userName}</Text>
+                <Text>{x.comment}</Text>
               </View>
             ))}
           </ScrollView>
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              flexDirection: "row",
+              borderTopWidth: 1,
+            }}
+          >
+            <TextInput
+              placeholder="Write a Review"
+              style={{
+                flexGrow: 1,
+                fontSize: 18,
+                paddingHorizontal: 10,
+              }}
+              // multiline={true}
+            />
+            <Pressable
+              style={{
+                backgroundColor: "#eee",
+                justifyContent: "center",
+                paddingHorizontal: 10,
+              }}
+            >
+              <Text style={{ fontSize: 20 }}>POST</Text>
+            </Pressable>
+          </View>
         </Animated.View>
       )}
     </Animated.View>

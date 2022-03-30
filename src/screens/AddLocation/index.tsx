@@ -26,6 +26,7 @@ const AddLocation = (props) => {
   const [images, setImages] = useState<any>([]);
   const [valueIndex, setValueIndex] = useState<number>();
 
+  const [locationName, setLocationName] = useState("");
   const [showCamera, setShowCamera] = useState(false);
 
   const openCamera = async () => {
@@ -48,30 +49,32 @@ const AddLocation = (props) => {
     //   (async () => await spot_image_add(images).then((a) => setImagesId(a)))();
     // }
   }, [showCamera]);
+
   const handleSubmit = async () => {
     const { latitude, longitude, altitude } = curCords;
     // data location images type
-    let imagesId;
-    let imagesIdP = images.map(
-      ({ id_promise }) => console.log(id_promise)
-      // ({ id_promise }) => id_promise
-      // id_promise.then((x) => console.log(x))
-    );
-    console.log(typeof images[0].id_promise);
-
-    await Promise.all(imagesIdP)
-      .then(console.log)
-      // .then((a) => (imagesId = a))
-      .catch(() => console.log("Promise All failed"));
-    // console.log(imagesId);
-    // spot_add(
-    //   locationName,
-    //   { latitude, longitude, altitude },
-    //   imagesId,
-    //   valueIndex ? "PRIVATE" : "PUBLIC"
+    // let imagesId;
+    // let imagesIdP = images.map(
+    // ({ id_promise }) => console.log(id_promise)
+    // ({ id_promise }) => id_promise
+    // id_promise.then((x) => console.log(x))
     // );
+    // console.log(typeof images[0].id_promise);
+
+    // await Promise.all(imagesIdP)
+    // .then(console.log)
+    // .then((a) => (imagesId = a))
+    // .catch(() => console.log("Promise All failed"));
+    // console.log(imagesId);
+    let imagesId: [] = images.map((x) => x.id_promise[0]);
+    // console.log(imagesId);
+    spot_add(
+      locationName,
+      { latitude, longitude, altitude },
+      imagesId,
+      valueIndex ? "PRIVATE" : "PUBLIC"
+    );
   };
-  const [locationName, setLocationName] = useState("");
   const isValid =
     locationName.length != 0 && valueIndex != null && images.length != 0;
 
