@@ -7,10 +7,13 @@ import {
   Dimensions,
   Pressable,
   TextInput,
+  Linking,
+  Platform,
 } from "react-native";
 import styles from "./styles";
 import Icon from "react-native-vector-icons/Ionicons";
 import MaterialCom from "react-native-vector-icons/MaterialCommunityIcons";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import Octicons from "react-native-vector-icons/Octicons";
 import ShowImages from "../ShowImages";
 import Animated, {
@@ -33,7 +36,7 @@ import {
 const { height, width } = Dimensions.get("screen");
 const IMAGE_URI =
   "https://public-spot-image-bucket.s3.ap-south-1.amazonaws.com";
-const FloatingCard = ({ rentScreen, spotInfo }) => {
+const FloatingCard = ({ rentScreen, spotInfo, setShowReview }) => {
   const Ypos = useRef(new Animated.Value(400)).current;
   const [cardStatus, setCardStatus] = useState(false);
 
@@ -294,27 +297,66 @@ const FloatingCard = ({ rentScreen, spotInfo }) => {
             style={{
               position: "absolute",
               bottom: 0,
-              flexDirection: "row",
-              borderTopWidth: 1,
+              right: 0,
             }}
           >
-            <TextInput
-              placeholder="Write a Review"
-              style={{
+            {/* <TextInput
+                placeholder="Write a Review"
+                style={{
                 flexGrow: 1,
                 fontSize: 18,
                 paddingHorizontal: 10,
-              }}
-              // multiline={true}
-            />
+                }}
+                // multiline={true}
+                /> */}
             <Pressable
               style={{
-                backgroundColor: "#eee",
                 justifyContent: "center",
                 paddingHorizontal: 10,
+                borderWidth: 1,
+                elevation: 10,
+                backgroundColor: "#fff",
+                marginHorizontal: 10,
+                height: 60,
+                width: 60,
+                borderRadius: 80,
+                display: "flex",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                const scheme = Platform.select({
+                  ios: "maps:0,0?q=",
+                  android: "geo:0,0?q=",
+                });
+                const latLng = `${spotInfo.address.location.latitude},${spotInfo.address.location.longitude}`;
+                const label = spotInfo.address.data;
+                const url = Platform.select({
+                  ios: `${scheme}${label}@${latLng}`,
+                  android: `${scheme}${latLng}(${label})`,
+                });
+
+                Linking.openURL(url);
               }}
             >
-              <Text style={{ fontSize: 20 }}>POST</Text>
+              <MaterialIcon name="map" size={30} />
+            </Pressable>
+            <Pressable
+              style={{
+                justifyContent: "center",
+                paddingHorizontal: 10,
+                display: "flex",
+                alignItems: "center",
+                borderWidth: 1,
+                elevation: 10,
+                backgroundColor: "#fff",
+                margin: 10,
+                height: 60,
+                width: 60,
+                borderRadius: 80,
+              }}
+              onPress={() => setShowReview(true)}
+            >
+              <MaterialIcon name="rate-review" size={30} />
             </Pressable>
           </View>
         </Animated.View>

@@ -6,6 +6,8 @@ import {
   Pressable,
   Animated,
   SafeAreaView,
+  Keyboard,
+  useColorScheme,
 } from "react-native";
 import styles from "./styles";
 import { TextInput } from "react-native-gesture-handler";
@@ -34,6 +36,7 @@ const loginValidationSchema = yup.object().shape({
 });
 
 const SignIn = (props: any) => {
+  const color = useColorScheme();
   const [mobile, setMobile] = useState("");
   const [otpId, setOtpId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +46,7 @@ const SignIn = (props: any) => {
   // useEffect(() => { otpId != '' ? console.log(otpId) : null }, [otpId])
 
   async function onSubmit(formdata: { mobile: string }) {
+    Keyboard.dismiss();
     // console.log(formdata);
     setMobile(formdata.mobile);
     setIsSubmitting(true);
@@ -119,6 +123,7 @@ const SignIn = (props: any) => {
                         <Text style={styles.labelNum}>+91</Text>
                         <TextInput
                           placeholder="mobile"
+                          placeholderTextColor="black"
                           style={styles.textInp}
                           onChangeText={handleChange("mobile")}
                           value={values.mobile}
@@ -177,6 +182,7 @@ const EnterOTP = (props: any) => {
   }, [fadeAnim]);
 
   async function onSubmit() {
+    Keyboard.dismiss();
     if (otpValue.length == 4) {
       // console.log(props.otpId, otpValue);
       validate_login(otpValue, props.mobile, props.otpId).catch((e) =>

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { PermissionsAndroid, Text } from "react-native";
 import {
   TransitionPresets,
   createStackNavigator,
@@ -8,6 +9,7 @@ import Second from "../screens/Second";
 import SignUp from "../screens/SignUp";
 import Landing from "../screens/Landing";
 import SignIn from "../screens/SignIn";
+import Premium from "../screens/Premium";
 import RentLocation from "../screens/RentLocation";
 import AuthTabbed from "./AuthTabbed";
 import { useAuthContext } from "../context/AuthContext";
@@ -25,10 +27,11 @@ const AuthRoute = () => {
   return (
     <Stack.Navigator
       screenOptions={TransitionScreenOptions}
-      initialRouteName="Home"
+      //initialRouteName="Main"
+      initialRouteName="Main"
     >
       <Stack.Screen
-        name="Home"
+        name="Main"
         component={DrawerRoute}
         options={{
           headerShown: false,
@@ -37,6 +40,10 @@ const AuthRoute = () => {
       <Stack.Screen name="Rent" component={RentLocation} />
 
       <Stack.Screen name="Entry" component={Second} />
+
+      <Stack.Screen name="Premium" component={Premium}
+    options={{headerTitle: "SOPA Premium"}}
+      />
     </Stack.Navigator>
   );
 };
@@ -67,6 +74,18 @@ const UnauthRoute = () => {
 };
 
 export const Route = () => {
+  useEffect(() => {
+    PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+    ])
+      .then((granted) => {
+        console.log(granted);
+      })
+      .catch((err) => {
+        console.warn(err);
+      });
+  }, []);
   const { x_sopa_key } = useAuthContext();
   useEffect(() => {
     // SplashScreen.hide();

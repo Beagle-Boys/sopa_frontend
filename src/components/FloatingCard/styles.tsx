@@ -11,7 +11,8 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     // borderRadius: 5,
-    elevation: 11,
+    elevation: 5,
+    zIndex: 5,
   },
 });
 

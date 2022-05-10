@@ -34,4 +34,6 @@ export interface AuthContextInterface {
   user_initiate_premium: () => Promise<{}>;
   user_complete_premium: () => Promise<{}>;
   spot_reservation_respond: (data: any) => Promise<{}>;
+  user_detail: {};
+  profile_pic: string;
 }

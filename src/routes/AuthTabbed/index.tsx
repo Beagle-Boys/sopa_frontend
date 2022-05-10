@@ -34,6 +34,17 @@ const AuthTabbed = () => {
           component={StarredLocation}
         />
         <Tab.Screen
+          name="Map"
+          options={{
+            tabBarLabel: "Map",
+            tabBarIcon: ({ color }) => (
+              <Icon name="home" color={color} size={26} />
+            ),
+          }}
+          component={Home}
+          initialParams={{ setHide }}
+        />
+        <Tab.Screen
           name="Add"
           options={{
             tabBarLabel: "Add",
@@ -43,17 +54,6 @@ const AuthTabbed = () => {
             swipeEnabled: !hide,
           }}
           component={AddLocation}
-          initialParams={{ setHide }}
-        />
-        <Tab.Screen
-          name="Map"
-          options={{
-            tabBarLabel: "Map",
-            tabBarIcon: ({ color }) => (
-              <Icon name="home" color={color} size={26} />
-            ),
-          }}
-          component={Home}
           initialParams={{ setHide }}
         />
       </Tab.Navigator>

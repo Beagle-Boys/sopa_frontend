@@ -1,4 +1,4 @@
-const API_URL = "http://sopa-bff.herokuapp.com";
+const API_URL = "http://sopa-bff.onrender.com";
 
 export async function api_register(data: any) {
   let headers = new Headers();
@@ -103,9 +103,11 @@ export async function api_spot_add(x_sopa_key: string, data: any) {
     headers: headers,
     body: JSON.stringify(data),
   };
+  console.log(JSON.stringify(data));
   let response = await fetch(`${API_URL}/user/spot/add`, request_options);
   let status = response.status;
   if (status !== 200) {
+    response.json().then(console.log);
     throw new Error("Spot Add failed " + status);
   }
   return await response.json();
@@ -158,7 +160,7 @@ export async function api_user_details(x_sopa_key: string) {
   let response = await fetch(`${API_URL}/user/details`, request_options);
   let status = response.status;
   if (status !== 200) {
-    throw new Error("Fetching User Details failed");
+    throw new Error("Fetching User Details failed " + status);
   }
   return await response.json();
 }

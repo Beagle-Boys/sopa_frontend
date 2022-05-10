@@ -10,6 +10,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
+    ActivityIndicator,
+    AsyncStorage,
 } from "react-native";
 import styles from "./styles";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -18,7 +20,14 @@ import { TextInput } from "react-native-gesture-handler";
 import MapboxGL from "@react-native-mapbox-gl/maps";
 import FloatingCard from "../../components/FloatingCard";
 import { useTabContext } from "../../context/TabContext";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideInUp,
+  SlideOutDown,
+} from "react-native-reanimated";
+import AsyncStorageLib from "@react-native-async-storage/async-storage";
 
 MapboxGL.setAccessToken(
   "sk.eyJ1IjoiYW51cmFxIiwiYSI6ImNreHVsanZrYzJ1bjQycGtvdXk4dW1nZ2YifQ.GkpyynQmykNnhkdEcGN7KQ"
@@ -33,77 +42,46 @@ const Home = (props: any) => {
   const { setCurCords } = useTabContext();
   const [location, setLocation] = useState<MapboxGL.Coordinates>([]);
   const [testLocation, setTestLocation] = useState(false);
-  const [userLocation, setUserLocation] = useState(false);
-  const { logout, spot_getall, spot_search, spot_getById } = useAuthContext();
+  const [userLocation, setUserLocation] = useState<null | boolean>();
+  const { logout, spot_getall, spot_search, spot_getById, user_details_fetch } = useAuthContext();
   const [spotLocation, setSpotLocation] = useState<Array<any> | null>(null);
   const [searchText, setSearchText] = useState<string>("");
   const [spotInfo, setSpotInfo] = useState<{} | null>();
-  // useEffect(() => {
-  //   console.log(location.latitude, location.longitude);
-  // }, [location]);
-  // useEffect(() => {
-  // console.log(location.latitude, location.longitude);
-  // setCurCords(location);
-  // });
-  const requestLocationPermission = async () => {
-    PermissionsAndroid.requestMultiple([
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-    ])
-      .then((granted) => {
-        console.log(granted);
-        setUserLocation(true);
-      })
-      .catch((err) => {
-        console.warn(err);
-      });
-  };
+  const [camLocation, setCamLocation] = useState<Array<number>>();
+  const [loadingSpotInfo, setLoadingSpotInfo] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
   const renderLocationPoints = async () => {
-    console.log("rendering spots");
-    console.log(location);
+    setUserLocation(false);
+    console.log("render location points ==== START ====");
+    console.log(location.latitude);
     const spots = await spot_getall({
       latitude: location.latitude,
       longitude: location.longitude,
       // altitude: location.altitude,
       altitude: 0,
     });
+    if (spots[0]?.address == null) {
+      Alert.alert(`${spots.length} spot(s) are found nearby`);
+      console.log("render location points ==== END ====");
+      return;
+    }
     setSpotLocation(spots);
     // console.log("Spots Home : ");
     // console.log(spots);
+    console.log("render location points ==== END ====");
   };
 
-  useEffect(() => {
-    requestLocationPermission().then(() => renderLocationPoints());
-  }, []);
-  const createLocationPermissionAlert = () =>
-    Alert.alert("Alert", "Give Persmission for Location", [
-      {
-        text: "Cancel",
-        onPress: () => console.log("Cancel Pressed"),
-        style: "cancel",
-      },
-      {
-        text: "OK",
-        onPress: () => {
-          console.log("OK Pressed");
-          requestLocationPermission();
-        },
-      },
-    ]);
-  const flyToUserLocation = () => {
-    renderLocationPoints();
-    if (!userLocation) {
-      createLocationPermissionAlert();
-      return;
-    }
+  const flyToUserLocation = async () => {
+    setZoom((prev) => (prev != 14 ? 14 : 13));
     console.log(
       "moving to user location " + location.longitude + " " + location.latitude
     );
-    console.log(camera.current.props);
-    camera.current.flyTo([location.longitude, location.latitude], 2500);
-    // camera.current?.moveTo([location.longitude, location.latitude]);
-    camera.current.zoomTo(1, 2500);
+    // console.log("cam location" + camLocation);
+    // setCamLocation([location.latitude, location.longitude]);
+    const { latitude, longitude } = location;
+    setCamLocation([latitude, longitude]);
+    // setCamLocation([-122.400021, 37.789085]);
   };
   const rentScreen = () => {
     props.navigation.navigate("Rent", {
@@ -113,128 +91,26 @@ const Home = (props: any) => {
   };
   const inputBox = useRef(null);
   const [searchSugg, setSearchSugg] = useState([]);
+  const map = useRef(null);
+  const [zoom, setZoom] = useState(14);
+
+  const onRegionDidChange = () => {
+    map?.current.getCenter().then((res) => {
+      // setCamLocation(res);
+      // console.log(res);
+    });
+  };
+  useEffect(() => {
+    user_details_fetch();
+  }, []);
   return (
     <>
-      <View style={styles.searchBarPos}>
-        <View
-          style={[
-            styles.searchBar,
-            searchSugg?.length > 0 && searchText?.length > 1
-              ? {
-                  borderBottomLeftRadius: 0,
-                  borderBottomRightRadius: 0,
-                  borderBottomWidth: 1,
-                  borderColor: "#999",
-                }
-              : null,
-          ]}
-        >
-          <Pressable
-            style={[styles.menuBtn, {}]}
-            onPress={() => props.navigation.toggleDrawer()}
-          >
-            <Icon name="menu" size={24} color="#000" />
-          </Pressable>
-          <TextInput
-            ref={inputBox}
-            style={[styles.searchInput, {}]}
-            placeholder="Enter Location"
-            onChangeText={(v) => {
-              if (v.length > 2) {
-                spot_search(v).then((s) => setSearchSugg(s));
-              }
-              setSearchText(v);
-            }}
-          />
-          {searchText.length > 0 ? (
-            <Pressable
-              style={[styles.menuBtn, {}]}
-              onPress={() => {
-                inputBox?.current.clear();
-                setSearchText("");
-                setSearchSugg([]);
-              }}
-            >
-              <Icon name="close" size={24} color="#000" />
-            </Pressable>
-          ) : null}
-        </View>
-        {searchText?.length > 2 && searchSugg?.length > 0 && (
-          <Animated.View
-            style={{
-              backgroundColor: "#f8f8f8",
-              borderBottomLeftRadius: 10,
-              borderBottomRightRadius: 10,
-              overflow: "hidden",
-              paddingBottom: 10,
-            }}
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(200)}
-          >
-            {searchSugg?.map((x, y) => (
-              <View style={{}}>
-                <Pressable
-                  key={y}
-                  style={({ pressed }) => [
-                    {
-                      backgroundColor: pressed ? "#eee" : null,
-                    },
-                  ]}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    console.log(spotInfo?.spotId);
-                    console.log(x?.spotId);
-                    if (spotInfo?.spotId != x?.spotId)
-                      spot_getById(x?.spotId).then((s) => {
-                        setSpotInfo(s);
-                        setTestLocation(true);
-                      });
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      paddingVertical: 5,
-                      paddingHorizontal: 20,
-                      color: "#555",
-                    }}
-                  >
-                    {x?.address?.data}
-                  </Text>
-                </Pressable>
-              </View>
-            ))}
-          </Animated.View>
-        )}
-      </View>
-      <Pressable
-        style={{
-          position: "absolute",
-          bottom: 0,
-          height: 48,
-          width: 48,
-          right: 0,
-          padding: 10,
-          backgroundColor: "#000",
-          margin: 10,
-          borderRadius: 24,
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          borderColor: "#ccc",
-          borderWidth: 1.5,
-          zIndex: 3,
-        }}
-        onPress={() => flyToUserLocation()}
-      >
-        <Icon name="my-location" size={25} color="#fff" />
-      </Pressable>
-
       <View style={styles.container}>
         {/*       <View style={{ height: height, width: width }}> */}
 
         <MapboxGL.MapView
-          // ref={camera}
+          // onRegionDidChange={onRegionDidChange}
+          // ref={map}
           style={{ flex: 1, marginBottom: 30 }}
           compassEnabled={true}
           compassViewPosition={4}
@@ -245,29 +121,36 @@ const Home = (props: any) => {
           style={{ flex: 1, flexGrow: 1 }}
           // surfaceView={true}
         >
-          {userLocation && (
-            <MapboxGL.UserLocation
-              showsUserHeadingIndicator={true}
-              renderMode={"native"}
-              onUpdate={(loc) => {
-                setLocation(loc.coords);
-              }}
-            />
-          )}
+          <MapboxGL.UserLocation
+            showsUserHeadingIndicator={true}
+            renderMode={"native"}
+            onUpdate={(loc) => {
+              setLocation(loc.coords);
+              setCurCords(loc.coords);
+              if (userLocation == null && location.latitude != undefined) {
+                renderLocationPoints().then(() => setUserLocation(true));
+              }
+            }}
+          />
+
           <MapboxGL.Camera
-            ref={camera}
-            zoomLevel={10}
+            // ref={camera}
+            zoomLevel={zoom}
             maxZoomLevel={19}
-            animationDuration={1000}
+            animationDuration={6000}
             followUserMode={"normal"}
+            followUserLocation={true}
             animationMode={"flyTo"}
             // followUserMode={"compass"}
-            followUserLocation={true}
-            // centerCoordinate={[location?.longitude, location?.latitude]}
+            centerCoordinate={
+              camLocation
+                ? camLocation
+                : [location.latitude, location.longitude]
+            }
           />
           <MapboxGL.PointAnnotation
             id="1"
-            title="nooooooooooooooooooooo"
+            title="no"
             coordinate={[77.2658739, 28.6369355]}
             onSelected={() => {
               setSpotInfo(null);
@@ -277,24 +160,27 @@ const Home = (props: any) => {
           {spotLocation &&
             spotLocation.map((x, y) => {
               // console.log("spot :" + x);
-              return (
-                <MapboxGL.PointAnnotation
-                  key={y}
-                  id={x.spotId}
-                  title={x.address.data}
-                  coordinate={[
-                    x.address.location.longitude,
-                    x.address.location.latitude,
-                  ]}
-                  onSelected={() => {
-                    console.log("Location Point Pressed" + x.address.data);
-                    spot_getById(x?.spotId).then((s) => {
-                      setSpotInfo(s);
-                      setTestLocation(true);
-                    });
-                  }}
-                />
-              );
+              if (x.address != null)
+                return (
+                  <MapboxGL.PointAnnotation
+                    key={y}
+                    id={x.spotId}
+                    title={x?.address.data.name}
+                    coordinate={[
+                      x?.address.location.longitude,
+                      x?.address.location.latitude,
+                    ]}
+                    onSelected={() => {
+                      setLoadingSpotInfo(true);
+                      console.log("Location Point Pressed" + x.address.data);
+                      spot_getById(x?.spotId).then((s) => {
+                        setSpotInfo(s);
+                        setLoadingSpotInfo(false);
+                        setTestLocation(true);
+                      });
+                    }}
+                  />
+                );
             })}
         </MapboxGL.MapView>
         {/*
@@ -339,12 +225,294 @@ const Home = (props: any) => {
             position: "absolute",
             height,
             width,
+            zIndex: 3,
+            elevation: 3,
           }}
         ></Pressable>
       ) : null}
       {testLocation ? (
-        <FloatingCard rentScreen={rentScreen} spotInfo={spotInfo} />
+        <FloatingCard
+          rentScreen={rentScreen}
+          spotInfo={spotInfo}
+          setShowReview={setShowReview}
+        />
       ) : null}
+      {loadingSpotInfo ? (
+        <Animated.View
+          entering={SlideInDown}
+          exiting={SlideOutDown}
+          style={{
+            position: "absolute",
+            zIndex: 3,
+            elevation: 3,
+            alignSelf: "center",
+            bottom: 0,
+            marginVertical: 30,
+            backgroundColor: "white",
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 9,
+            borderWidth: 1,
+            borderColor: "#eee",
+            flexDirection: "row",
+          }}
+        >
+          <ActivityIndicator />
+          <Text style={{ fontSize: 16, marginLeft: 5 }}>
+            {"Loading Spot's Info"}
+          </Text>
+        </Animated.View>
+      ) : null}
+      {userLocation == false ? (
+        <Animated.View
+          entering={SlideInDown}
+          exiting={SlideOutDown}
+          style={{
+            position: "absolute",
+            zIndex: 3,
+            elevation: 3,
+            alignSelf: "center",
+            bottom: 0,
+            marginVertical: 30,
+            backgroundColor: "white",
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 9,
+            borderWidth: 1,
+            borderColor: "#eee",
+            flexDirection: "row",
+          }}
+        >
+          <ActivityIndicator />
+          <Text style={{ fontSize: 16, marginLeft: 5 }}>Loading All Spots</Text>
+        </Animated.View>
+      ) : null}
+
+      <View style={styles.searchBarPos}>
+        <View
+          style={[
+            styles.searchBar,
+            searchSugg?.length > 0 && searchText?.length > 1
+              ? {
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderBottomWidth: 1,
+                  borderColor: "#999",
+                }
+              : null,
+            !testLocation ? { zIndex: 3 } : null,
+          ]}
+        >
+          <Pressable
+            style={[styles.menuBtn, {}]}
+            onPress={() => props.navigation.toggleDrawer()}
+          >
+            <Icon name="menu" size={24} color="#000" />
+          </Pressable>
+          <TextInput
+            ref={inputBox}
+            style={[styles.searchInput, {}]}
+            placeholder="Search Location"
+            onChangeText={(v) => {
+              if (v.length > 2) {
+                spot_search(v).then((s) => setSearchSugg(s));
+              }
+              setSearchText(v);
+            }}
+          />
+          {searchText.length > 0 ? (
+            <Pressable
+              style={[styles.menuBtn, {}]}
+              onPress={() => {
+                inputBox?.current.clear();
+                setSearchText("");
+                setSearchSugg([]);
+              }}
+            >
+              <Icon name="close" size={24} color="#000" />
+            </Pressable>
+          ) : null}
+        </View>
+        {searchText?.length > 2 && searchSugg?.length > 0 && (
+          <Animated.View
+            style={{
+              backgroundColor: "#f8f8f8",
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+              overflow: "hidden",
+              paddingBottom: 10,
+            }}
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}
+          >
+            {searchSugg?.map((x, y) => (
+              <View style={{}}>
+                <Pressable
+                  key={y}
+                  style={({ pressed }) => [
+                    {
+                      backgroundColor: pressed ? "#eee" : null,
+                    },
+                  ]}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    setLoadingSpotInfo(true);
+                    console.log(spotInfo?.spotId);
+                    console.log(x?.spotId);
+                    if (spotInfo?.spotId != x?.spotId)
+                      spot_getById(x?.spotId).then((s) => {
+                        setSpotInfo(s);
+                        setTestLocation(true);
+                        setLoadingSpotInfo(false);
+                      });
+                    else {
+                      setTestLocation(true);
+                      setLoadingSpotInfo(false);
+                    }
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      paddingVertical: 5,
+                      paddingHorizontal: 20,
+                      color: "#555",
+                    }}
+                  >
+                    {x?.address?.data}
+                  </Text>
+                </Pressable>
+              </View>
+            ))}
+          </Animated.View>
+        )}
+      </View>
+      {!testLocation && (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+          }}
+        >
+          <Pressable
+            style={{
+              height: 48,
+              width: 48,
+              padding: 10,
+              backgroundColor: "#000",
+              margin: 10,
+              borderRadius: 24,
+              borderColor: "#ccc",
+              borderWidth: 1.5,
+              zIndex: 3,
+              elevation: 3,
+            }}
+            onPress={() =>
+              renderLocationPoints().then(() => setUserLocation(true))
+            }
+          >
+            <Icon name="refresh" size={25} color="#fff" />
+          </Pressable>
+          <Pressable
+            style={{
+              height: 48,
+              width: 48,
+              padding: 10,
+              backgroundColor: "#000",
+              margin: 10,
+              borderRadius: 24,
+              borderColor: "#ccc",
+              borderWidth: 1.5,
+              zIndex: 3,
+              elevation: 3,
+            }}
+            onPress={() => flyToUserLocation().then(() => setCamLocation([]))}
+          >
+            <Icon name="my-location" size={25} color="#fff" />
+          </Pressable>
+        </View>
+      )}
+      <Modal visible={showReview} transparent={true}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(100,149,237, 0.5)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "white",
+              height: 200,
+              width: 300,
+              elevation: 2,
+              padding: 15,
+              borderRadius: 10,
+              justifyContent: "space-evenly",
+            }}
+          >
+            <Text style={{ fontSize: 24, textAlign: "center" }}>
+              Post a Comment
+            </Text>
+            <TextInput
+              keyboardType="number-pad"
+              placeholder="Amount"
+              style={{ fontSize: 24, textAlign: "center" }}
+              //onChangeText={setReserveAmt}
+              //value={reserveAmt}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+              }}
+            >
+              <Pressable
+                style={({ pressed }) => [
+                  {
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: "black",
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                  },
+                  pressed
+                    ? {
+                        backgroundColor: "rgba(208, 52, 44, 0.6)",
+                      }
+                    : null,
+                ]}
+                onPress={() => setShowReview(false)}
+              >
+                <Text style={{ fontSize: 18 }}>CANCEL</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  {
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: "black",
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                  },
+                  pressed
+                    ? {
+                        backgroundColor: "#90ee90",
+                      }
+                    : null,
+                ]}
+                onPress={() => {
+                  setShowReview(false);
+                }}
+              >
+                <Text style={{ fontSize: 18 }}>APPROVE</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };

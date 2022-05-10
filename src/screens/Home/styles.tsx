@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     // marginTop: "3%",
+    // elevation: 8,
   },
   searchBarPos: {
     width: "90%",

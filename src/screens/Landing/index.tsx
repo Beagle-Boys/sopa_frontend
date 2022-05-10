@@ -1,13 +1,17 @@
 import React from "react";
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image, useColorScheme } from "react-native";
 import styles from "./styles";
 import SvgUri from "react-native-svg-uri";
 import BorderButton from "../../components/BorderButton";
 import Logo from "../../../assets/images/logo";
 
 const Landing = (props: any) => {
+  const color = useColorScheme() == "light";
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, color ? null : { backgroundColor: "black" }]}
+    >
       <SvgUri
         height={80}
         width={80}
@@ -33,8 +37,21 @@ const Landing = (props: any) => {
           marginTop: 20,
         }}
       >
-        <Text style={styles.signUpTitle}>SOPA</Text>
-        <Text style={{ textAlign: "center", fontSize: 20 }}>
+        <Text
+          style={[
+            styles.signUpTitle,
+            color ? { color: "black" } : { color: "white" },
+          ]}
+        >
+          SOPA
+        </Text>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 20,
+            color: color ? "black" : "white",
+          }}
+        >
           A parking solution
         </Text>
       </View>
@@ -44,6 +61,7 @@ const Landing = (props: any) => {
           marginVertical: 45,
         }}
       >
+        <Text>{color}</Text>
         <BorderButton
           onPress={() => props.navigation.navigate("SignUp")}
           body="SignUp"

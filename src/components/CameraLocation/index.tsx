@@ -19,7 +19,7 @@ import { useAuthContext } from "../../context/AuthContext";
 
 const { height, width } = Dimensions.get("window");
 
-const CameraAdd = ({ images, setImages, setShowCamera }) => {
+const CameraAdd = ({ images, setImages, setShowCamera, imgId, setImgId }) => {
   const { spot_image_add } = useAuthContext();
   const Ypos = useRef(new Animated.Value(height)).current;
   const camera = useRef<Camera>(null);
@@ -40,6 +40,15 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
       .then((p) => p)
       .catch((e) => console.error(e.stack));
     console.log(photo?.path);
+    setImages((prevState) => [
+      {
+        uri: "file://" + photo?.path,
+        height: photo?.height,
+        width: photo?.width,
+        // id_promise: img_id,
+      },
+      ...prevState,
+    ]);
     // console.log("take photo end");
     // images.push({ uri: "file://" + photo?.path });
     let img_id;
@@ -48,16 +57,8 @@ const CameraAdd = ({ images, setImages, setShowCamera }) => {
       console.log(id);
     });
     console.log("img id : " + img_id);
-    console.log(typeof img_id);
-    setImages([
-      {
-        uri: "file://" + photo?.path,
-        height: photo?.height,
-        width: photo?.width,
-        id_promise: img_id,
-      },
-      ...images,
-    ]);
+    console.log("type of " + typeof img_id);
+    setImgId((prevState) => [img_id, ...prevState]);
     // console.log("height width " + height + " " + width);
   };
   useEffect(() => {

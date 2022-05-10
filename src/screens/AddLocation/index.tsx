@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, TextInput, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  Dimensions,
+  Alert,
+  ToastAndroid,
+  Keyboard,
+} from "react-native";
 import styles from "./styles";
 import RadioForm, {
   RadioButton,
@@ -24,10 +33,11 @@ const AddLocation = (props) => {
   const { spot_add, spot_image_add } = useAuthContext();
   const { curCords } = useTabContext();
   const [images, setImages] = useState<any>([]);
-  const [valueIndex, setValueIndex] = useState<number>();
+  const [valueIndex, setValueIndex] = useState<number | null>(null);
 
   const [locationName, setLocationName] = useState("");
   const [showCamera, setShowCamera] = useState(false);
+  const [imgId, setImgId] = useState<[]>([]);
 
   const openCamera = async () => {
     console.log("TOGGLE CAMERA");
@@ -66,17 +76,35 @@ const AddLocation = (props) => {
     // .then((a) => (imagesId = a))
     // .catch(() => console.log("Promise All failed"));
     // console.log(imagesId);
-    let imagesId: [] = images.map((x) => x.id_promise[0]);
+    let imagesId = imgId.map((x) => x[0]);
+    console.log("imgId" + imgId);
+    console.log("image Id" + imagesId);
+    if (imagesId.length != images.length) Alert.alert("Image Still Uploading");
     // console.log(imagesId);
+    // console.log("handle Submit ids " + imgId);
     spot_add(
       locationName,
       { latitude, longitude, altitude },
       imagesId,
       valueIndex ? "PRIVATE" : "PUBLIC"
-    );
+    ).then(() => {
+      setValueIndex(null);
+      setLocationName("");
+      setImages([]);
+      setImgId([]);
+    });
   };
+  useEffect(() => {
+    console.log("use effect imgid : " + imgId);
+    console.log(
+      "length imgId " + imgId.length + " length of imgs " + images.length
+    );
+    if (imgId.length != 0)
+      ToastAndroid.show("Uploaded " + imgId?.length, ToastAndroid.SHORT);
+  }, [imgId]);
   const isValid =
-    locationName.length != 0 && valueIndex != null && images.length != 0;
+    locationName.length != 0 && valueIndex != null && images.length != 0; //&&
+  // imgId?.length == images.length;
 
   return (
     <View style={{ backgroundColor: "#FFF", flex: 1, zIndex: 0 }}>
@@ -110,6 +138,7 @@ const AddLocation = (props) => {
                 buttonWrapStyle={{ marginLeft: 10 }}
                 onPress={(value: number) => {
                   setValueIndex(value);
+                  Keyboard.dismiss();
                 }}
               />
               <RadioButtonLabel
@@ -137,7 +166,10 @@ const AddLocation = (props) => {
           borderRadius: 10,
           elevation: 2,
         }}
-        onPress={openCamera}
+        onPress={() => {
+          openCamera();
+          Keyboard.dismiss();
+        }}
       >
         <Text style={{ fontSize: 20, textAlign: "center" }}>add photos</Text>
         <Icon
@@ -156,10 +188,18 @@ const AddLocation = (props) => {
             images={images}
             setImages={setImages}
             setShowCamera={setShowCamera}
+            imgId={imgId}
+            setImgId={setImgId}
           />
         </View>
       ) : images.length == 0 ? null : (
-        <ShowImages images={images} />
+        <View
+          style={
+            imgId.length != images.length ? { opacity: 0.5 } : { opacity: 1 }
+          }
+        >
+          <ShowImages images={images} />
+        </View>
       )}
       <Pressable
         onPress={handleSubmit}
