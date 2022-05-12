@@ -17,7 +17,7 @@ export interface AuthContextInterface {
   x_sopa_key: string | null;
   logout: () => Promise<void>;
   spot_add: (
-    data: string,
+    data: any,
     location: any,
     images: any,
     typev: string
@@ -36,4 +36,10 @@ export interface AuthContextInterface {
   spot_reservation_respond: (data: any) => Promise<{}>;
   user_detail: {};
   profile_pic: string;
+  bookmark_list: [];
+  bookmarks_fetch: () => Promise<[]>,
+  bookmark_add:  (spotId: string) => Promise<[]>,
+  bookmark_delete:  (spotId: string) => Promise<[]>,
+  spot_insert_review: (spotId: string, data: any) => {},
+  is_bookmark: (spotId: string) => Promise<string>,
 }

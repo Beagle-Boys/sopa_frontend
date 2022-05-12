@@ -24,6 +24,11 @@ import {
     api_respond_reservation,
     api_initiate_premium,
     api_complete_premium,
+    api_insert_spot_review,
+    api_bookmark_add,
+    api_bookmark_delete,
+    api_bookmarks_fetch,
+    api_is_bookmark
 } from "../apis";
 import { AuthContextInterface, SignUpData } from "../interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -38,7 +43,7 @@ const AuthContext = createContext<AuthContextInterface>({
     x_sopa_key: null,
     logout: async () => { },
     spot_add: async (
-        data: string,
+        data: any,
         location: any,
         images: any,
         typev: string
@@ -56,7 +61,13 @@ const AuthContext = createContext<AuthContextInterface>({
     user_initiate_premium: async () => { },
     user_complete_premium: async (data: any) => { },
     user_detail: {},
-    profile_pic: ""
+    profile_pic: "",
+    bookmarks_fetch: async () => [],
+    bookmark_add: async () => [],
+    bookmark_delete: async () => [],
+    spot_insert_review: async () => {},
+    api_is_bookmark: async () => "",
+    bookmark_list: [],
 });
 
 export function useAuthContext() {
@@ -76,6 +87,7 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
     const [x_sopa_key, setXSopaKey] = useState<string | null>(null);
     const [user_detail, set_user_detail] = useState(null);
     const [profile_pic, set_profile_pic] = useState();
+    const [bookmark_list, set_bookmark_list] = useState([]);
 
     async function register(user_data: SignUpData) {
         console.log("register", user_data);
@@ -125,7 +137,7 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
     }
 
     async function spot_add(
-        data: string,
+        data: any,
         location: any,
         images: any,
         typev: string
@@ -308,6 +320,71 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
         }
     }
 
+    async function spot_insert_review( spotId: string, data: any) {
+        console.log("Inserting Review");
+        if (!x_sopa_key) return;
+        try {
+            const spots = await api_insert_spot_review(x_sopa_key, data, spotId);
+            console.log(spots);
+            return spots;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+
+    async function bookmarks_fetch() {
+        console.log("Fetching Bookmarks");
+        if (!x_sopa_key) return;
+        try {
+            const spots = await api_bookmarks_fetch(x_sopa_key);
+            console.log(spots);
+            set_bookmark_list(spots);
+            return spots;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function bookmark_add(spotId: string) {
+        console.log("Adding Bookmarks");
+        if (!x_sopa_key) return;
+        try {
+            const spots = await api_bookmark_add(x_sopa_key, spotId);
+            console.log(spots);
+            set_bookmark_list(spots);
+            return spots;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function bookmark_delete(spotId: string) {
+        console.log("Deleting Bookmarks");
+        if (!x_sopa_key) return;
+        try {
+            const spots = await api_bookmark_delete(x_sopa_key, spotId);
+            console.log(spots);
+            set_bookmark_list(spots);
+            return spots;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function is_bookmark(spotId: string) {
+        console.log("Checking Bookmarks State");
+        if (!x_sopa_key) return;
+        try {
+            const spots = await api_is_bookmark(x_sopa_key, spotId);
+            console.log(spots);
+            return spots;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+
     return (
         <AuthContext.Provider
             value={{
@@ -331,7 +408,13 @@ export const AuthProvider: FunctionComponent<{}> = ({ children }) => {
                 user_initiate_premium,
                 user_complete_premium,
                 user_detail,
-                profile_pic
+                profile_pic,
+                bookmarks_fetch,
+                bookmark_add,
+                bookmark_delete,
+                spot_insert_review,
+                is_bookmark,
+                bookmark_list,
             }}
         >
             {children}

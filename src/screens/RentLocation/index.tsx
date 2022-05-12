@@ -64,7 +64,7 @@ const StarredLocation = (props) => {
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <Text style={styles.center}>Reserve : {name}</Text>
+      <Text style={styles.center}>Reserve : {name.name}</Text>
       <View
         style={{
           // backgroundColor: "#aaa",

@@ -225,7 +225,7 @@ export async function api_insert_spot_review(
     headers: headers,
     body: JSON.stringify(data),
   };
-  let response = await fetch(`${API_URL}/spot/get/${spot_id}`, request_options);
+  let response = await fetch(`${API_URL}/spot/review/${spot_id}`, request_options);
   let status = response.status;
   if (status !== 200) {
     throw new Error("Inserting Spot Review Failed! " + status);
@@ -397,4 +397,85 @@ export async function api_complete_premium(x_sopa_key: string, data: any) {
     throw new Error("Premium Complete Failed! " + status);
   }
   return await response.json();
+}
+
+export async function api_bookmarks_fetch(x_sopa_key: string) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "GET",
+    headers: headers,
+  };
+  let response = await fetch(
+    `${API_URL}/spot/bookmarks`,
+    request_options
+  );
+  let status = response.status;
+  if (status !== 200) {
+    response.json().then(console.log);
+    throw new Error("Fetching Bookmarks Failed! " + status);
+  }
+  return await response.json();
+}
+
+export async function api_bookmark_add(x_sopa_key: string, spot_id: string) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "GET",
+    headers: headers,
+  };
+  console.log(spot_id)
+  let response = await fetch(
+    `${API_URL}/spot/bookmark/${spot_id}`,
+    request_options
+  );
+  let status = response.status;
+  if (status !== 200) {
+    response.json().then(console.log);
+    throw new Error("Adding Bookmark Failed! " + status);
+  }
+  return await response.json();
+}
+
+export async function api_bookmark_delete(x_sopa_key: string, spot_id: string) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "DELETE",
+    headers: headers,
+  };
+  let response = await fetch(
+    `${API_URL}/spot/bookmark/${spot_id}`,
+    request_options
+  );
+  let status = response.status;
+  if (status !== 200) {
+    response.json().then(console.log);
+    throw new Error("Deleteing Bookmark Failed! " + status);
+  }
+  return await response.json();
+}
+
+export async function api_is_bookmark(x_sopa_key: string, spot_id: string) {
+  let headers = new Headers();
+  headers.append("x-sopa-key", x_sopa_key);
+  headers.append("Content-Type", "application/json");
+  let request_options = {
+    method: "GET",
+    headers: headers,
+  };
+  let response = await fetch(
+    `${API_URL}/spot/isbookmarked/${spot_id}`,
+    request_options
+  );
+  let status = response.status;
+  if (status !== 200) {
+    response.json().then(console.log);
+    throw new Error("Checking Bookmark Failed! " + status);
+  }
+  return await response.text();
 }

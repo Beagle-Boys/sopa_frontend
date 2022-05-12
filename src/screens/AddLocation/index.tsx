@@ -8,6 +8,8 @@ import {
   Alert,
   ToastAndroid,
   Keyboard,
+  ScrollView,
+  Image
 } from "react-native";
 import styles from "./styles";
 import RadioForm, {
@@ -22,6 +24,7 @@ import CameraLocation from "../../components/CameraLocation";
 import ShowImages from "../../components/ShowImages";
 import { useAuthContext } from "../../context/AuthContext";
 import { useTabContext } from "../../context/TabContext";
+import { Button, Incubator } from "react-native-ui-lib";
 
 const { height, width } = Dimensions.get("window");
 const radio_props = [
@@ -36,6 +39,7 @@ const AddLocation = (props) => {
   const [valueIndex, setValueIndex] = useState<number | null>(null);
 
   const [locationName, setLocationName] = useState("");
+  const [locationAddress, setLocationAddress] = useState("");
   const [showCamera, setShowCamera] = useState(false);
   const [imgId, setImgId] = useState<[]>([]);
 
@@ -83,13 +87,14 @@ const AddLocation = (props) => {
     // console.log(imagesId);
     // console.log("handle Submit ids " + imgId);
     spot_add(
-      locationName,
+      {"name":locationName,"address":locationAddress},
       { latitude, longitude, altitude },
       imagesId,
       valueIndex ? "PRIVATE" : "PUBLIC"
     ).then(() => {
       setValueIndex(null);
       setLocationName("");
+      setLocationAddress("");
       setImages([]);
       setImgId([]);
     });
@@ -100,7 +105,7 @@ const AddLocation = (props) => {
       "length imgId " + imgId.length + " length of imgs " + images.length
     );
     if (imgId.length != 0)
-      ToastAndroid.show("Uploaded " + imgId?.length, ToastAndroid.SHORT);
+      ToastAndroid.show("Uploaded " + imgId?.length + " of "+ images.length, ToastAndroid.SHORT);
   }, [imgId]);
   const isValid =
     locationName.length != 0 && valueIndex != null && images.length != 0; //&&
@@ -111,20 +116,28 @@ const AddLocation = (props) => {
       <Text style={styles.center}>Add Location Page</Text>
       <TextInput
         placeholder="Location Name"
-        style={styles.textInp}
+        style={[styles.textInp, {marginBottom: 15}]}
         onChangeText={setLocationName}
         value={locationName}
       />
+      <TextInput
+        placeholder="Location Address"
+        style={styles.textInp}
+        onChangeText={setLocationAddress}
+        value={locationAddress}
+      multiline={true}
+      />
+
       {/* <Text>{curCords ? JSON.stringify(curCods) : "no"}</Text> */}
       <RadioForm
-        formHorizontal={true}
+        formHorizontal={false}
         animation={true}
         style={styles.radioForm}
       >
         {radio_props.map((obj, i) => (
-          <RadioButton labelHorizontal={true} key={i}>
+          <RadioButton labelHorizontal={false} key={i}>
             {/*  You can set RadioButtonLabel before RadioButtonInput */}
-            <View>
+            <View style={{flexDirection: "row"}}>
               <RadioButtonInput
                 obj={obj}
                 index={i}
@@ -155,8 +168,47 @@ const AddLocation = (props) => {
           </RadioButton>
         ))}
       </RadioForm>
-      <Pressable
-        style={{
+      <View style={{height: 180, }}>
+      <ScrollView horizontal={true} centerContent={true} style={{}}>
+        {images.map(({ uri }, index) => (
+          <Image
+            //source={{ uri, width: 150, height: 150 * 2.07 }}
+            source={{ uri, width: 150, height: 150 }}
+            key={index}
+            style={{ margin: 5, borderRadius: 10, backgroundColor: "#f00" }}
+          />
+        ))}
+        <Pressable onPress={()=> {
+          openCamera();
+          Keyboard.dismiss();
+        }}>
+          <View style={{width: 150, height: 150, borderWidth: 6,borderStyle: "dashed", alignItems: "center", justifyContent: "center", borderRadius: 20, borderColor: "#ccc", marginLeft: 10}}>
+            <Icon name="plus" color="#ccc" size={69} />
+          </View>
+        </Pressable>
+      </ScrollView>
+      </View>
+
+      {/* <Pressable
+          onPress={handleSubmit}
+          style={[
+          styles.submitBtn,
+          !isValid ? { backgroundColor: "#ccc" } : null,
+          showCamera ? { height: 0 } : null,
+          ]}
+          disabled={!isValid}
+          >
+          <Text style={styles.submitBtnText}>Add Location</Text>
+          </Pressable>
+        */}
+      <View style={{flexGrow: 1, justifyContent: "center"}}>
+      <Button style={{marginHorizontal: 20}} disabled={!isValid}>
+        <Text style={{fontSize: 20, color: "white"}}>Add Location</Text>
+      </Button>
+
+      </View>
+      {/* <Pressable
+          style={{
           backgroundColor: "#ddd",
           width: 150,
           alignSelf: "center",
@@ -165,23 +217,23 @@ const AddLocation = (props) => {
           justifyContent: "center",
           borderRadius: 10,
           elevation: 2,
-        }}
-        onPress={() => {
+          }}
+          onPress={() => {
           openCamera();
           Keyboard.dismiss();
-        }}
-      >
-        <Text style={{ fontSize: 20, textAlign: "center" }}>add photos</Text>
-        <Icon
+          }}
+          >
+          <Text style={{ fontSize: 20, textAlign: "center" }}>add photos</Text>
+          <Icon
           name="camera"
           size={20}
           style={{
-            position: "relative",
-            top: 3,
-            marginHorizontal: 3,
+          position: "relative",
+          top: 3,
+          marginHorizontal: 3,
           }}
-        />
-      </Pressable>
+          />
+          </Pressable> */}
       {showCamera ? (
         <View style={{ position: "absolute" }}>
           <CameraLocation
@@ -198,20 +250,8 @@ const AddLocation = (props) => {
             imgId.length != images.length ? { opacity: 0.5 } : { opacity: 1 }
           }
         >
-          <ShowImages images={images} />
         </View>
       )}
-      <Pressable
-        onPress={handleSubmit}
-        style={[
-          styles.submitBtn,
-          !isValid ? { backgroundColor: "#ccc" } : null,
-          showCamera ? { height: 0 } : null,
-        ]}
-        disabled={!isValid}
-      >
-        <Text style={styles.submitBtnText}>Add Location</Text>
-      </Pressable>
     </View>
   );
 };

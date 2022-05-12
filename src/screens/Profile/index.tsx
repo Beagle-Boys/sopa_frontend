@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, Pressable, Modal, TextInput } from "react-native";
+import { View, Text, Image, Pressable, Modal, TextInput, Alert } from "react-native";
 import { TextField, Button, Colors } from "react-native-ui-lib";
 
 import styles from "./styles";
@@ -34,91 +34,90 @@ const Profile = () => {
     const [state, setState] = useState(false);
     const [edit, setEdit] = useState(false);
     const [cal, setCal] = useState(false);
-    const [dob, setDOB] = useState<Date | null>(null);
+
     const {
         user_details_fetch,
         user_details_update,
         logout,
         user_initiate_premium,
         user_complete_premium,
-        profile_pic
+        profile_pic,
+        user_detail
     } = useAuthContext();
+
+    const [dob, setDOB] = useState<Date>(new Date(user_detail?.dob));
+    const [email, setEmail] = useState(user_detail?.email );
+    const [mobile, setMobile] = useState(user_detail?.mobile);
+    const [address, setaddress] = useState(user_detail?.address?.data?.address || "");
+    const [userName, setUserName] = useState(user_detail?.userName);
     const [user, setUser] = useState<any>(null);
+
     useEffect(() => {
         user_details_fetch().then((userR) => {
             setUser(userR);
-            setDOB(userR.dob);
+            setDOB(new Date(userR.dob));
+            setEmail(userR.email)
+            setMobile(userR.mobile)
+            setaddress(userR.address.data.address)
+            setUserName(userR.userName)
             console.log(profile_pic);
         });
     }, [state]);
+    const handleSubmit = () => {
+        user_details_update({
+            userName,
+            address: {
+                data: {
+                  name: "User Address",
+                    address
+                },
+                location: {
+                    latitude: 0,
+                    longitude: 0,
+                    altitude: 0,
+                },
+            },
+            dob: dob.getTime(),
+            email,
+          name: ""
+        }).then((r)=> {
+          user_details_fetch();
+          setState(!state)
+          Alert.alert("Profile Updated ")
+        }).catch(console.log);
+    }
     return (
         <>
-            {/* <View
-          style={{
-          flex: 1,
-          backgroundColor: "#fff",
-          alignItems: "center",
-          justifyContent: "center",
-          }}
-          >
-           <Text style={styles.center}>Profile</Text>
-      <View
-      style={{
-        height: 70,
-        width: 70,
-        backgroundColor: "#ddd",
-        borderRadius: 35,
-        marginBottom: 10,
-        borderWidth: 2,
-        borderColor: "#62b2ff",
-      }}
-      ></View>
-      <Pressable
-      style={{
-        position: "relative",
-        left: 100,
-        backgroundColor: "black",
-        padding: 2,
-        paddingLeft: 4,
-        paddingBottom: 4,
-        borderRadius: 5,
-      }}
-      onPress={() => setEdit(!edit)}
-      >
-      <FA5 name="edit" size={18} color="white" />
-      </Pressable>
-      <Text style={styles.profileLabel}>
-      {user?.countryCode} - {user?.mobile}
-      </Text>
-      <Text style={styles.profileLabel}>email - {user?.email}</Text>
-      <Text style={styles.profileLabel}>username - {user?.userName}</Text>
-      <Text style={styles.profileLabel}>address - {user?.address?.data}</Text>
-      <Text style={styles.profileLabel}>karma - {user?.karma}</Text>
-      <Text style={styles.profileLabel}>
-      dob - {new Date(user?.dob).toLocaleDateString()}
-      </Text>
-      <Text style={styles.profileLabel}>type - {user?.type}</Text>
-      </View> */}
-          <View style={{paddingHorizontal: 20}}>
-          <View style={{height: 150, paddingHorizontal: 10, paddingVertical: 5, display: "flex", flexDirection: "row",  alignItems: "center"}} >
-            <View style={{height: 80, width: 80, backgroundColor: "#0a0"}}>
-              <SvgUri svgXmlData={profile_pic} height={80} width={80}/>
+            <View style={{ position: "absolute", right: 0, flexDirection: "row", margin: 10, padding: 5, backgroundColor: "#fff", borderRadius: 8 }}>
+                <Icon name="cash" size={30} color="#118C4F" style={{ marginHorizontal: 5 }} />
+                <Text style={{ fontSize: 19 }}>{user ? user?.karma : user_detail?.karma}</Text>
             </View>
-            <View style={{paddingHorizontal: 10, justifyContent: "center"}}>
-              <Text style={{fontSize: 25, fontWeight: "bold"}}>{user?.userName}</Text>
-              <Text style={{fontSize: 25 }}>{user?.email}</Text>
+            <View style={{ paddingHorizontal: 20 }}>
+                <View style={{ height: 150, paddingHorizontal: 10, paddingVertical: 5, display: "flex", flexDirection: "row", alignItems: "center" }} >
+                    <View style={{ height: 100, width: 100, backgroundColor: user?.type == "PREMIUM" || user_detail?.type == "PREMIUM" ? "#ffbf00" : "#A2C4E0", paddingTop: 20, paddingHorizontal: 10 }}>
+                        <SvgUri svgXmlData={profile_pic} height={80} width={80} />
+                    </View>
+                    <View style={{ paddingHorizontal: 10, justifyContent: "center" }}>
+                        <Text style={{ fontSize: 25, fontWeight: "bold" }}>{user ? user?.userName : user_detail?.userName}</Text>
+                        <Text style={{ fontSize: 25 }}>{user ? user?.email : user_detail?.email}</Text>
+                    </View>
+                </View>
+
+
+                <TextField title="Email" placeholder="email" value={email} onChangeText={setEmail} />
+                <TextField title="Mobile" placeholder="mobile" value={mobile} onChangeText={setMobile} />
+                <TextField title="Username" placeholder="username" value={userName} onChangeText={setUserName} />
+                <TextField title="Address" placeholder="address" value={address} onChangeText={setaddress} />
+                <DateTimePicker title="DOB dd/mm/yyyy" placeholder={'Placeholder'} mode={'date'} value={dob} onChange={setDOB} />
+
+                <Button size={Button.sizes.large} backgroundColor={Colors.blue30} style={{ paddingVertical: 15 }} onPress={() => {
+                    handleSubmit();
+                }}>
+                    <Text style={{ color: "white", fontSize: 20 }}>Update Profile</Text>
+                </Button>
+
             </View>
-          </View>
-          <TextField title="Email" placeholder="email" value={user?.email} />
-          <TextField title="Mobile" placeholder="mobile" value={user?.mobile} />
-          <TextField title="Username" placeholder="username" value={user?.userName}/>
-          <TextField title="Address" placeholder="address" value={user?.address?.data}/>
-          <DateTimePicker title="DOB dd/mm/yyyy" placeholder={'Placeholder'} mode={'date'} value={new Date(user?.dob)} />
-            <Button size={Button.sizes.large} backgroundColor={Colors.blue30}>
-                <Text style={{color: "white"}}>Update Profile</Text>
-            </Button>
-          </View>
-          {/* <Pressable
+            {/* <Pressable
               style={{
               padding: 10,
               backgroundColor: "#7f00ff",

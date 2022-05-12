@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
     createDrawerNavigator,
@@ -20,7 +20,7 @@ const Drawer = createDrawerNavigator();
 const DrawerRoute = () => {
     return (
         // <NavigationContainer independent={true}>
-        <Drawer.Navigator initialRouteName="Profile" drawerContent={CustomDrawerContent}>
+        <Drawer.Navigator initialRouteName="Home" drawerContent={CustomDrawerContent}>
             <Drawer.Screen
                 name="Home"
                 component={AuthTabbed}
@@ -37,16 +37,24 @@ const DrawerRoute = () => {
     );
 };
 function CustomDrawerContent(props) {
-    const { profile_pic, user_detail } = useAuthContext();
+    const { profile_pic, user_detail, logout } = useAuthContext();
+    useEffect(() => {
+        console.log("PROFILE SVG =======")
+        console.log(profile_pic);
+    }, [profile_pic])
     return (
         <DrawerContentScrollView {...props}
             style={{}}
             contentContainerStyle={{ flex: 1 }}
         >
-            <View style={{ width: "100%", height: 150, backgroundColor: "#aef", padding: 20, justifyContent: "flex-end", marginBottom: 20 }}>
-                <View style={{ flexDirection: "row" }}>
-                        <SvgUri svgXmlData={profile_pic} height={70} width={70} />
-                    <Text>{user_detail?.userName}</Text>
+            <View style={{ width: "100%", height: 150, backgroundColor: user_detail?.type == "PREMIUM" ? "#ffbf00" : "#aef", padding: 20, justifyContent: "flex-end", marginBottom: 20 }}>
+                <View style={{ flexDirection: "row", }}>
+                    <SvgUri height={90} width={90} svgXmlData={profile_pic} />
+                    <View style={{ paddingHorizontal: 10, justifyContent: "center", paddingBottom: 5 }}>
+                        <Text style={{ fontSize: 20, fontWeight: "bold" }}>{user_detail?.userName}</Text>
+                        <Text style={{ fontSize: 20 }}>{user_detail?.email}</Text>
+                    </View>
+
                 </View>
             </View>
             <DrawerItemList {...props} />

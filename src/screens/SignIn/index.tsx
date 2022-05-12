@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  View,
-  Text,
-  ActivityIndicator,
-  Pressable,
-  Animated,
-  SafeAreaView,
-  Keyboard,
-  useColorScheme,
+    View,
+    Text,
+    ActivityIndicator,
+    Pressable,
+    Animated,
+    SafeAreaView,
+    Keyboard,
+    useColorScheme,
 } from "react-native";
 import styles from "./styles";
 import { TextInput } from "react-native-gesture-handler";
@@ -20,73 +20,73 @@ import BorderButton from "../../components/BorderButton";
 const PHONE_NUMBER_REGEX = /^\d{10}$/;
 
 const loginValidationSchema = yup.object().shape({
-  // username: yup
-  //   .string()
-  //   .min(3, "Username must be at least 3 characters long")
-  //   .max(20, "Username must be less than 20 characters long")
-  //   .required("Username is Required"),
-  // email: yup
-  //   .string()
-  //   .email("Please enter valid email")
-  //   .required("Email Address is Required"),
-  mobile: yup
-    .string()
-    .matches(PHONE_NUMBER_REGEX, "Phone number is not valid")
-    .required("Phone number is required"),
+    // username: yup
+    //   .string()
+    //   .min(3, "Username must be at least 3 characters long")
+    //   .max(20, "Username must be less than 20 characters long")
+    //   .required("Username is Required"),
+    // email: yup
+    //   .string()
+    //   .email("Please enter valid email")
+    //   .required("Email Address is Required"),
+    mobile: yup
+        .string()
+        .matches(PHONE_NUMBER_REGEX, "Phone number is not valid")
+        .required("Phone number is required"),
 });
 
 const SignIn = (props: any) => {
-  const color = useColorScheme();
-  const [mobile, setMobile] = useState("");
-  const [otpId, setOtpId] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const color = useColorScheme();
+    const [mobile, setMobile] = useState("");
+    const [otpId, setOtpId] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuthContext();
+    const { login } = useAuthContext();
 
-  // useEffect(() => { otpId != '' ? console.log(otpId) : null }, [otpId])
+    // useEffect(() => { otpId != '' ? console.log(otpId) : null }, [otpId])
 
-  async function onSubmit(formdata: { mobile: string }) {
-    Keyboard.dismiss();
-    // console.log(formdata);
-    setMobile(formdata.mobile);
-    setIsSubmitting(true);
-    try {
-      const otp = await login(formdata.mobile, "91");
-      // console.log(otp);
-      setOtpId(otp);
-    } catch (e) {
-      console.log(e);
+    async function onSubmit(formdata: { mobile: string }) {
+        Keyboard.dismiss();
+        // console.log(formdata);
+        setMobile(formdata.mobile);
+        setIsSubmitting(true);
+        try {
+            const otp = await login(formdata.mobile, "91");
+            // console.log(otp);
+            setOtpId(otp);
+        } catch (e) {
+            console.log(e);
+        }
     }
-  }
 
-  return (
-    <>
-      <View
-        style={{
-          height: "100%",
-          width: "100%",
-          position: "absolute",
-          zIndex: -1,
-        }}
-      >
-        <View style={{ flex: 1, backgroundColor: "#008081" }}></View>
-        <View style={{ flex: 1 }}></View>
-      </View>
+    return (
+        <>
+            <View
+                style={{
+                    height: "100%",
+                    width: "100%",
+                    position: "absolute",
+                    zIndex: -1,
+                }}
+            >
+                <View style={{ flex: 1, backgroundColor: "#008081" }}></View>
+                <View style={{ flex: 1 }}></View>
+            </View>
 
-      <View style={styles.container}>
-        <View
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: 20,
-            elevation: 2,
-            padding: 10,
-          }}
-        >
-          <SvgUri
-            // source={require("./../../../assets/images/Icon_raw.svg")}
-            height={70}
-            width={70}
-            svgXmlData='<svg width="834" height="805" viewBox="0 0 834 805" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Icon_raw">
+            <View style={styles.container}>
+                <View
+                    style={{
+                        backgroundColor: "#fff",
+                        borderRadius: 20,
+                        elevation: 2,
+                        padding: 10,
+                    }}
+                >
+                    <SvgUri
+                        // source={require("./../../../assets/images/Icon_raw.svg")}
+                        height={70}
+                        width={70}
+                        svgXmlData='<svg width="834" height="805" viewBox="0 0 834 805" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="Icon_raw">
             <g id="bub3" style="mix-blend-mode:darken">
             <circle cx="258.5" cy="546.5" r="258.5" fill="#8433EC"/>
             </g>
@@ -98,51 +98,51 @@ const SignIn = (props: any) => {
             </g>
             </g>
             </svg>'
-          />
-        </View>
-        <Text style={styles.signUpTitle}>Sign In</Text>
-        <SafeAreaView style={{}}>
-          <View style={styles.form}>
-            {otpId == "" ? (
-              <>
-                <Formik
-                  initialValues={{ mobile: "" }}
-                  onSubmit={(values) => onSubmit(values)}
-                  validationSchema={loginValidationSchema}
-                >
-                  {({
-                    handleChange,
-                    handleSubmit,
-                    values,
-                    errors,
-                    touched,
-                    isValid,
-                  }) => (
-                    <>
-                      <View style={styles.sameLine}>
-                        <Text style={styles.labelNum}>+91</Text>
-                        <TextInput
-                          placeholder="mobile"
-                          placeholderTextColor="black"
-                          style={styles.textInp}
-                          onChangeText={handleChange("mobile")}
-                          value={values.mobile}
-                          keyboardType="numeric"
-                        />
-                      </View>
-                      {errors.mobile && touched.mobile && (
-                        <Text style={styles.errorBox}>{errors.mobile}</Text>
-                      )}
-                      <BorderButton
-                        onPress={handleSubmit}
-                        body="Get OTP"
-                        disabled={!isValid}
-                        spinnerAnimation={isSubmitting}
-                      />
-                    </>
-                  )}
-                </Formik>
-                {/* <View style={styles.inpGroup}>
+                    />
+                </View>
+                <Text style={styles.signUpTitle}>Sign In</Text>
+                <SafeAreaView style={{}}>
+                    <View style={styles.form}>
+                        {otpId == "" ? (
+                            <>
+                                <Formik
+                                    initialValues={{ mobile: "" }}
+                                    onSubmit={(values) => onSubmit(values)}
+                                    validationSchema={loginValidationSchema}
+                                >
+                                    {({
+                                        handleChange,
+                                        handleSubmit,
+                                        values,
+                                        errors,
+                                        touched,
+                                        isValid,
+                                    }) => (
+                                        <>
+                                            <View style={styles.sameLine}>
+                                                <Text style={styles.labelNum}>+91</Text>
+                                                <TextInput
+                                                    placeholder="mobile"
+                                                    placeholderTextColor="black"
+                                                    style={styles.textInp}
+                                                    onChangeText={handleChange("mobile")}
+                                                    value={values.mobile}
+                                                    keyboardType="numeric"
+                                                />
+                                            </View>
+                                            {errors.mobile && touched.mobile && (
+                                                <Text style={styles.errorBox}>{errors.mobile}</Text>
+                                            )}
+                                            <BorderButton
+                                                onPress={handleSubmit}
+                                                body="Get OTP"
+                                                disabled={!isValid}
+                                                spinnerAnimation={isSubmitting}
+                                            />
+                                        </>
+                                    )}
+                                </Formik>
+                                {/* <View style={styles.inpGroup}>
                                 <Text style={styles.labelText}>Mobile Number</Text>
                                 <View style={styles.sameLine}>
                                     <Text style={styles.labelNum}>+91</Text>
@@ -155,67 +155,67 @@ const SignIn = (props: any) => {
                                     <Text style={styles.submitBtnText}>Get OTP</Text>
                                 </Pressable>
                             </View> */}
-              </>
-            ) : (
-              <EnterOTP otpId={otpId} mobile={mobile} />
-            )}
-          </View>
-        </SafeAreaView>
-      </View>
-    </>
-  );
+                            </>
+                        ) : (
+                            <EnterOTP otpId={otpId} mobile={mobile} />
+                        )}
+                    </View>
+                </SafeAreaView>
+            </View>
+        </>
+    );
 };
 
 const EnterOTP = (props: any) => {
-  const [otpValue, setotpValue] = useState("");
-  const [otp, setOtp] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+    const [otpValue, setotpValue] = useState("");
+    const [otp, setOtp] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const { validate_login } = useAuthContext();
+    const { validate_login } = useAuthContext();
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+    useEffect(() => {
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start();
+    }, [fadeAnim]);
 
-  async function onSubmit() {
-    Keyboard.dismiss();
-    if (otpValue.length == 4) {
-      // console.log(props.otpId, otpValue);
-      validate_login(otpValue, props.mobile, props.otpId).catch((e) =>
-        console.log(e)
-      );
-      setOtp(true);
+    async function onSubmit() {
+        Keyboard.dismiss();
+        if (otpValue.length == 4) {
+            // console.log(props.otpId, otpValue);
+            validate_login(otpValue, props.mobile, props.otpId).catch((e) =>
+                console.log(e)
+            );
+            setOtp(true);
+        }
+        setotpValue("");
     }
-    setotpValue("");
-  }
 
-  return (
-    <Animated.View style={{ opacity: fadeAnim }}>
-      <View style={styles.inpGroup}>
-        <TextInput
-          placeholder="Enter OTP"
-          style={styles.textInp}
-          value={otpValue}
-          onChangeText={setotpValue}
-          keyboardType="phone-pad"
-          defaultValue="xxxxxxxxxx"
-          autoCompleteType="tel"
-        />
-      </View>
-      <View style={styles.inpGroup}>
-        <BorderButton
-          onPress={onSubmit}
-          body="Verify"
-          spinnerAnimation={otp}
-          disabled={otpValue.length != 4}
-        />
-      </View>
-    </Animated.View>
-  );
+    return (
+        <Animated.View style={{ opacity: fadeAnim }}>
+            <View style={styles.inpGroup}>
+                <TextInput
+                    placeholder="Enter OTP"
+                    style={styles.textInp}
+                    value={otpValue}
+                    onChangeText={setotpValue}
+                    keyboardType="phone-pad"
+                    defaultValue="xxxxxxxxxx"
+                    autoCompleteType="tel"
+                />
+            </View>
+            <View style={styles.inpGroup}>
+                <BorderButton
+                    onPress={onSubmit}
+                    body="Verify"
+                    spinnerAnimation={otp}
+                    disabled={otpValue.length != 4}
+                />
+            </View>
+        </Animated.View>
+    );
 };
 
 export default SignIn;
