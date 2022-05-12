@@ -14,6 +14,7 @@ import Reservation from "../../screens/Reservation";
 import { Text, View, Pressable } from "react-native";
 import { useAuthContext } from "../../context/AuthContext";
 import SvgUri from "react-native-svg-uri";
+import FA5 from "react-native-vector-icons/FontAwesome5"
 
 const Drawer = createDrawerNavigator();
 
@@ -52,33 +53,46 @@ function CustomDrawerContent(props) {
                     <SvgUri height={90} width={90} svgXmlData={profile_pic} />
                     <View style={{ paddingHorizontal: 10, justifyContent: "center", paddingBottom: 5 }}>
                         <Text style={{ fontSize: 20, fontWeight: "bold" }}>{user_detail?.userName}</Text>
-                        <Text style={{ fontSize: 20 }}>{user_detail?.email}</Text>
+                        <Text style={{ fontSize: 12 }}>{user_detail?.email}</Text>
                     </View>
 
                 </View>
             </View>
             <DrawerItemList {...props} />
-            <View style={{ backgroundColor: "green", width: "100%", position: "absolute", bottom: 0 }}>
+            <View style={{  width: "100%", position: "absolute", bottom: 0, paddingHorizontal: 15, paddingBottom: 10 }}>
                 <Pressable
-                    style={{
+                    style={({pressed}) => [{
                         padding: 10,
                         backgroundColor: "#7f00ff",
-                    }}
+                        borderRadius: 10,
+                        flexDirection: "row",
+                        justifyContent: "center"
+                    }, pressed && {
+                        opacity: 0.5
+                    }]}
                     onPress={() => props.navigation.navigate("Premium")}
 
                 >
-                    <Text style={{ fontSize: 17, color: "#fff", textAlign: "center" }}>
+                    <FA5 name="crown" size={19} color="#ffbf00"/>
+                    <Text style={{ fontSize: 17, color: "#fff", textAlign: "center", marginLeft: 10 }}>
                         Get Premium
                     </Text>
                 </Pressable>
                 <Pressable
-                    style={{
-                        padding: 10,
+                    style={({pressed}) => [{
+                        padding: 8,
+                        backgroundColor: "#fff",
+                        borderWidth: 2,
+                        borderColor: "#ff326f",
+                        borderRadius: 10,
+                        marginVertical: 10
+                    }, pressed && {
                         backgroundColor: "#ff326f",
-                    }}
+                        color: "white"
+                    }]}
                     onPress={() => logout()}
                 >
-                    <Text style={{ fontSize: 17, color: "#fff", textAlign: "center" }}>
+                    <Text style={{ fontSize: 17, color: "#ff326f", textAlign: "center" }}>
                         Logout
                     </Text>
                 </Pressable>

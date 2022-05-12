@@ -37,9 +37,9 @@ import { useAuthContext } from "../../context/AuthContext";
 const { height, width } = Dimensions.get("screen");
 const IMAGE_URI =
     "https://public-spot-image-bucket.s3.ap-south-1.amazonaws.com";
-const FloatingCard = ({ rentScreen, spotInfo, setShowReview, bookmark }) => {
+const FloatingCard = ({ rentScreen, spotInfo, setShowReview, bookmark, full }) => {
     const Ypos = useRef(new Animated.Value(400)).current;
-    const [cardStatus, setCardStatus] = useState(false);
+    const [cardStatus, setCardStatus] = useState(full);
   const [wishlist, setWishlist] = useState(bookmark);
   const {bookmark_add, bookmark_delete} = useAuthContext();
 
@@ -132,12 +132,12 @@ const FloatingCard = ({ rentScreen, spotInfo, setShowReview, bookmark }) => {
                 //     }
                 //   : null,
             ]}
-        >
+        >{ !full &&
             <Pressable onPress={animateCard} style={{ width: "100%" }}>
                 <Text style={{ fontSize: 18, textAlign: "center" }}>
                     {cardStatus ? "Down" : "Up"}
                 </Text>
-            </Pressable>
+            </Pressable> }
             <View
                 style={{
                     flexDirection: "row",
@@ -338,6 +338,7 @@ const FloatingCard = ({ rentScreen, spotInfo, setShowReview, bookmark }) => {
                                 borderRadius: 80,
                                 display: "flex",
                                 alignItems: "center",
+                              marginBottom: full ? 20 : 0
                             }}
                             onPress={() => {
                                 const scheme = Platform.select({
@@ -356,6 +357,7 @@ const FloatingCard = ({ rentScreen, spotInfo, setShowReview, bookmark }) => {
                         >
                             <MaterialIcon name="map" size={30} />
                         </Pressable>
+                        { !full &&
                         <Pressable
                             style={{
                                 justifyContent: "center",
@@ -374,6 +376,7 @@ const FloatingCard = ({ rentScreen, spotInfo, setShowReview, bookmark }) => {
                         >
                             <MaterialIcon name="rate-review" size={30} />
                         </Pressable>
+                        }
                     </View>
                 </Animated.View>
             )}

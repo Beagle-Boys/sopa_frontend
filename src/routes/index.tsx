@@ -14,6 +14,7 @@ import RentLocation from "../screens/RentLocation";
 import AuthTabbed from "./AuthTabbed";
 import { useAuthContext } from "../context/AuthContext";
 import DrawerRoute from "./DrawerRoute";
+import SpotFull from "../screens/SpotFull";
 
 // import SplashScreen from "react-native-splash-screen";
 
@@ -27,7 +28,6 @@ const AuthRoute = () => {
   return (
     <Stack.Navigator
       screenOptions={TransitionScreenOptions}
-      //initialRouteName="Main"
       initialRouteName="Main"
     >
       <Stack.Screen
@@ -38,6 +38,8 @@ const AuthRoute = () => {
         }}
       />
       <Stack.Screen name="Rent" component={RentLocation} />
+
+      <Stack.Screen name="Spot" component={SpotFull} />
 
       <Stack.Screen name="Entry" component={Second} />
 
@@ -69,6 +71,7 @@ const UnauthRoute = () => {
         component={Landing}
         options={{ headerShown: false }}
       />
+
     </Stack.Navigator>
   );
 };

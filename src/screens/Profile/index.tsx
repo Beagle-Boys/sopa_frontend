@@ -49,7 +49,7 @@ const Profile = () => {
     const [email, setEmail] = useState(user_detail?.email );
     const [mobile, setMobile] = useState(user_detail?.mobile);
     const [address, setaddress] = useState(user_detail?.address?.data?.address || "");
-    const [userName, setUserName] = useState(user_detail?.userName);
+    const [userName, setUserName] = useState(user_detail.userName);
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
@@ -99,7 +99,7 @@ const Profile = () => {
                     </View>
                     <View style={{ paddingHorizontal: 10, justifyContent: "center" }}>
                         <Text style={{ fontSize: 25, fontWeight: "bold" }}>{user ? user?.userName : user_detail?.userName}</Text>
-                        <Text style={{ fontSize: 25 }}>{user ? user?.email : user_detail?.email}</Text>
+                        <Text style={{ fontSize: 16 }}>{user ? user?.email : user_detail?.email}</Text>
                     </View>
                 </View>
 
@@ -108,7 +108,7 @@ const Profile = () => {
                 <TextField title="Mobile" placeholder="mobile" value={mobile} onChangeText={setMobile} />
                 <TextField title="Username" placeholder="username" value={userName} onChangeText={setUserName} />
                 <TextField title="Address" placeholder="address" value={address} onChangeText={setaddress} />
-                <DateTimePicker title="DOB dd/mm/yyyy" placeholder={'Placeholder'} mode={'date'} value={dob} onChange={setDOB} />
+                <DateTimePicker title="DOB" placeholder={'Placeholder'} mode={'date'} value={dob} onChange={setDOB} />
 
                 <Button size={Button.sizes.large} backgroundColor={Colors.blue30} style={{ paddingVertical: 15 }} onPress={() => {
                     handleSubmit();

@@ -17,7 +17,7 @@ const AuthTabbed = () => {
     <TabProvider>
       <Tab.Navigator
         tabBarPosition="bottom"
-        initialRouteName="Starred"
+        initialRouteName="Map"
         screenOptions={{
           tabBarLabelStyle: { fontSize: 12 },
           tabBarStyle: { backgroundColor: "#F9F9F9", height: hide ? 0 : 60 },

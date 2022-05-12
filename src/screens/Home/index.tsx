@@ -246,6 +246,7 @@ const Home = (props: any) => {
                     spotInfo={spotInfo}
                     setShowReview={setShowReview}
                     bookmark={bookmark}
+                    full={false}
                 />
             ) : null}
             {loadingSpotInfo ? (
