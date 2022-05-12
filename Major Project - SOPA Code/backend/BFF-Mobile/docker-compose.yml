@@ -1,0 +1,14 @@
+version: '3'
+services:
+  app-bff:
+    build: .
+    container_name: "app-bff"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./common_files/:/common_files
+      - ./models/:/models
+      - ./interfaces/:/interfaces
+      - ./services/:/services
+      - ./controller/:/controller
+      - ./schemas/:/schemas
