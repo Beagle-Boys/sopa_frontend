@@ -202,7 +202,9 @@ const AddLocation = (props) => {
           </Pressable>
         */}
       <View style={{flexGrow: 1, justifyContent: "center"}}>
-      <Button style={{marginHorizontal: 20}} disabled={!isValid}>
+      <Button style={{marginHorizontal: 20}} disabled={!isValid} onPress={() => {
+        handleSubmit();
+      }}>
         <Text style={{fontSize: 20, color: "white"}}>Add Location</Text>
       </Button>
 
